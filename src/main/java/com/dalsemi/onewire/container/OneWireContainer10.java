@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -36,14 +36,14 @@ import com.dalsemi.onewire.adapter.*;
 
 /**
  * <P> 1-Wire container for temperature iButton which measures temperatures
- * from -55&#176C to +100&#176C, DS1920 or DS18S20.  This container encapsulates the
+ * from -55@htmlonly &#176C @endhtmlonly to +100@htmlonly &#176C @endhtmlonly, DS1920 or DS18S20.  This container encapsulates the
  * functionality of the iButton family type <B>10</B> (hex)</P>
  *
  * <H3> Features </H3>
  * <UL>
- *   <LI> Measures temperatures from -55&#176C to +100&#176C in typically 0.2 seconds
+ *   <LI> Measures temperatures from -55@htmlonly &#176C @endhtmlonly to +100@htmlonly &#176C @endhtmlonly in typically 0.2 seconds
  *   <LI> Zero standby power
- *   <LI> 0.5&#176C resolution, digital temperature reading in two’s complement
+ *   <LI> 0.5@htmlonly &#176C @endhtmlonly resolution, digital temperature reading in two’s complement
  *   <LI> Increased resolution through interpolation in internal counters
  *   <LI> 8-bit device-generated CRC for data integrity
  *   <LI> Special command set allows user to skip ROM section and do temperature
@@ -199,7 +199,7 @@ public class OneWireContainer10
    //--------
 
    /**
-    * Retrieves the Dallas Semiconductor part number of this
+    * Retrieves the Maxim Integrated Products part number of this
     * <code>OneWireContainer10</code> as a <code>String</code>.
     * For example 'DS1920'.
     *
@@ -211,7 +211,7 @@ public class OneWireContainer10
    }
 
    /**
-    * Retrieves the alternate Dallas Semiconductor part numbers or names.
+    * Retrieves the alternate Maxim Integrated Products part numbers or names.
     * A 'family' of 1-Wire Network devices may have more than one part number
     * depending on packaging.  There can also be nicknames such as
     * 'Crypto iButton'.

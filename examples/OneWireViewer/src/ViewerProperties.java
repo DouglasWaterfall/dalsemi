@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2001 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2001 - 2007 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -32,8 +32,8 @@ import java.io.*;
  * ViewerProperties - a static class for proxying calls to a <code>Properties</code>
  * object.  ViewerProperties ensures that properties are loaded to and saved from
  * a centralized location.  The properties file will attempt to load from the
- * current directory first.  If that load fails, the <java home>/lib directory
- * is used.  If that load files, a new file is created in the home directory for
+ * current directory first.  If that load fails, the <user.home>/.OneWireViewer directory
+ * is used.  If that load files, a new file is created in the user directory for
  * storing viewer properties.
  *
  * @author SKH
@@ -53,8 +53,8 @@ public class ViewerProperties
    /** a list of paths to check for properties file */
    private static final String[] pathsToCheck = new String[]
       {
-         System.getProperty("java.home") + File.separator + "lib"
-            + File.separator, //the java lib directory
+         System.getProperty("user.home") + File.separator + ".OneWireViewer"
+            + File.separator, //the "user" directory
          "" //the current directory
       };
 
@@ -74,7 +74,7 @@ public class ViewerProperties
     * <ul>
     * <li> In System.properties
     * <li> In onewireviewer.properties file in current directory
-    *      or < java.home >/lib/ (Desktop) or /etc/ (TINI)
+    *      or < user.home >/.OneWireViewer/ (Desktop) or /etc/ (TINI)
     * </ul>
     *
     * @param propName string name of the property to read
@@ -311,7 +311,7 @@ public class ViewerProperties
 
    /**
     * Attempts to load the value of all properties from disk.  First checks
-    * current directory for properties file, then the system lib directory.
+    * current directory for properties file, then the <user.home>/.OneWireViewer directory.
     *
     * @reaturn <code>true</code> if load was successful.
     */
@@ -344,7 +344,7 @@ public class ViewerProperties
 
    public static String getPropertiesFilename()
    {
-      // if we didn't find a file, create one in <java home>/lib folder
+      // if we didn't find a file, create one in <user.home>/.OneWireViewer folder
       if(pathUsed<0)
          pathUsed = 0;
 
@@ -362,6 +362,19 @@ public class ViewerProperties
    {
       try
       {
+         // create directories for <user.home>\.OneWireViewer\onewireviewer.properties file
+         // if directories do not exist.
+         String strFilePath = System.getProperty("user.home") + File.separator + ".OneWireViewer";
+         // if directory does not exist, create it
+         if (!(new File(strFilePath)).exists())
+         {
+            boolean success = (new File(strFilePath)).mkdirs();
+            if (success)
+            {
+               // do nothing
+            }
+         }
+
          FileOutputStream fos = new FileOutputStream(getPropertiesFilename());
          props.store(fos,"OneWireViewer Properties");
          fos.close();

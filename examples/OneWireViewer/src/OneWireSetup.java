@@ -29,7 +29,8 @@ public class OneWireSetup
    boolean isCanceled = false;
    JCheckBoxMenuItem[] pollRateButtons = null;
    JPanel searchModePanel = null;
-   JCheckBox normalModeEnabled = null, taggingModeEnabled = null;
+   JRadioButton normalModeEnabled = null;
+   JRadioButton alarmingModeEnabled = null, chainModeEnabled = null, pauseSearching = null;
    Container contentPane = null;
    Component comp = null;
 
@@ -90,8 +91,10 @@ public class OneWireSetup
 
       ViewerProperties.setPropertyBoolean(OneWireViewer.ENABLE_NORMAL_SEARCHING,
                                           normalModeEnabled.isSelected());
-      ViewerProperties.setPropertyBoolean(OneWireViewer.ENABLE_TAG_SEARCHING,
-                                          taggingModeEnabled.isSelected());
+      ViewerProperties.setPropertyBoolean(OneWireViewer.ENABLE_ALARM_SEARCHING,
+                                          alarmingModeEnabled.isSelected());
+      ViewerProperties.setPropertyBoolean(OneWireViewer.ENABLE_CHAIN_SEARCHING,
+                                          chainModeEnabled.isSelected());
       this.setVisible(false);
       this.dispose();
    }
@@ -272,26 +275,50 @@ public class OneWireSetup
          textArea.setWrapStyleWord(true);
          textArea.setText(
             "The OneWireViewer application can search for all devices\n" +
-            "on the 1-Wire network or it can search for XML Tagged\n" +
-            "devices.  If a device is tagged, it will be displayed with\n" +
-            "a meaningful label, rather than it's device address.  In\n" +
-            "addition, only the functionality associated with its tag\n" +
-            "will be accessible for that device.");
+            "on the 1-Wire network, including XML Tagged devices, or it\n" + 
+            "can perform selected searches for devices that are alarming,\n" + 
+            "or devices that support the 'chain mode' protocol (such as,\n" +
+            "the DS28EA00). For XML Tagged devices, they will be displayed\n" +
+            "with meaningful labels, rather than their device addresses.\n" +
+            "In addition, only the functionality associated with their\n" +
+            "tags will be exercisable.");
          searchModePanel.add(textArea, BorderLayout.NORTH);
 
 
-         JPanel checkboxGrid = new JPanel(new GridLayout(2, 1, 3, 3));
-         checkboxGrid.setBorder(BorderFactory.createEtchedBorder());
-         normalModeEnabled = new JCheckBox("Show Normal Devices");
+         JPanel radioButtonGrid = new JPanel(new GridLayout(4, 1, 3, 3));
+         radioButtonGrid.setBorder(BorderFactory.createEtchedBorder());
+
+         //Group the radio buttons.
+         ButtonGroup group = new ButtonGroup();       
+
+         //Create the radio buttons.
+         normalModeEnabled = new JRadioButton("Show Normal Devices");
          normalModeEnabled.setFont(fontBold);
-         normalModeEnabled.setSelected(true);
-         checkboxGrid.add(normalModeEnabled);
-         taggingModeEnabled = new JCheckBox("Show Tagged Devices");
-         taggingModeEnabled.setFont(fontBold);
-         taggingModeEnabled.setSelected(false);
-         checkboxGrid.add(taggingModeEnabled);
+         normalModeEnabled.setSelected(true); 
+         group.add(normalModeEnabled); // add to group of JRadioButtons
+         radioButtonGrid.add(normalModeEnabled); // add to JPanel
+
+         alarmingModeEnabled = new JRadioButton("Show Alarming Devices");
+         alarmingModeEnabled.setFont(fontBold);
+         alarmingModeEnabled.setSelected(false);
+         group.add(alarmingModeEnabled); // add to group of JRadioButtons
+         radioButtonGrid.add(alarmingModeEnabled); // add to JPanel
+
+         chainModeEnabled = new JRadioButton("Show Chain Mode Devices");
+         chainModeEnabled.setFont(fontBold);
+         chainModeEnabled.setSelected(false);
+         group.add(chainModeEnabled); // add to group of JRadioButtons
+         radioButtonGrid.add(chainModeEnabled); // add to JPanel
+
+         pauseSearching = new JRadioButton("Pause All Searching");
+         pauseSearching.setFont(fontBold);
+         pauseSearching.setSelected(false);
+         group.add(pauseSearching);   // add to group of JRadioButtons
+         radioButtonGrid.add(pauseSearching);  // add to JPanel
+
+         // add radio buttons to panel
          JPanel flowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-         flowPanel.add(checkboxGrid);
+         flowPanel.add(radioButtonGrid);
          searchModePanel.add(flowPanel, BorderLayout.CENTER);
       }
       return searchModePanel;
@@ -299,7 +326,7 @@ public class OneWireSetup
 
    private boolean validatePage2()
    {
-      if(!taggingModeEnabled.isSelected() && !normalModeEnabled.isSelected())
+      if(!normalModeEnabled.isSelected() && !alarmingModeEnabled.isSelected() && !chainModeEnabled.isSelected())
       {
          JOptionPane.showMessageDialog(this,
             new JLabel("At least one search mode option should be selected."),

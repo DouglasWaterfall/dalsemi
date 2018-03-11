@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -304,7 +304,7 @@ public abstract class DSPortAdapter
 
    /**
     * Registers a user provided <code>OneWireContainer</code> class.
-    * Using this method will override the Dallas Semiconductor provided
+    * Using this method will override the Maxim Integrated Products provided
     * container class when using the getDeviceContainer() method.  The
     * registered container state is only stored for the current
     * instance of <code>DSPortAdapter</code>, and is not statically shared.

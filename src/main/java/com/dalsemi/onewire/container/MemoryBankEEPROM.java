@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 2004 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2004 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -32,6 +32,7 @@ package com.dalsemi.onewire.container;
 import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.*;
 import com.dalsemi.onewire.utils.*;
+import com.dalsemi.onewire.debug.*;
 import com.dalsemi.onewire.container.OneWireContainer;
 
 
@@ -81,7 +82,7 @@ class MemoryBankEEPROM
    /**
     * block of 0xFF's used for faster read pre-fill of 1-Wire blocks
     */
-   protected byte[] ffBlock = new byte [150];
+   protected byte[] ffBlock = new byte [500];
 
    /**
     * Flag to indicate that speed needs to be set
@@ -191,6 +192,10 @@ class MemoryBankEEPROM
     */
    protected String extraInfoDescription;
 
+   /**
+    * Length of scratch pad
+    */
+   protected int scratchPadSize;
 
    //--------
    //-------- Protected Variables for OTPMemoryBank implementation
@@ -249,9 +254,10 @@ class MemoryBankEEPROM
       writeVerification    = false;
       startPhysicalAddress = 0;
       doSetSpeed           = true;
+	  scratchPadSize       = 8;
 
       // create the ffblock (used for faster 0xFF fills)
-      for (int i = 0; i < 150; i++)
+      for (int i = 0; i < 500; i++)
          ffBlock [i] = ( byte ) 0xFF;
    }
 
@@ -659,23 +665,40 @@ class MemoryBankEEPROM
 
       // loop while still have pages to write
       int    startx     = 0, nextx = 0;   // (start and next index into writeBuf)
-      byte[] raw_buf    = new byte [8];
+      byte[] raw_buf    = new byte [scratchPadSize];
       byte[] memory     = new byte [size];  
       //byte[] scratchpad = new byte[8];
       //byte[] es_data    = new byte[3];
       int    abs_addr   = startAddr + startPhysicalAddress;
-      int    pl         = 8;
+      int    pl         = scratchPadSize;
 
       // check to see if we need to read memory for the beginning of the block
-      if ((startAddr & 0x07) != 0)
-         read((startAddr & 0x00F8), false, memory, (startAddr & 0x00F8), 
-               startAddr - (startAddr & 0x00F8) + 1);
-
+	  if (scratchPadSize == 8)
+	  {
+		  if ((startAddr & 0x07) != 0)
+			  read((startAddr & 0x00F8), false, memory, (startAddr & 0x00F8),
+					startAddr - (startAddr & 0x00F8) + 1);
+	  }
+	  else
+	  {
+		  if ((startAddr & 0x1F) != 0)
+			  read((startAddr & 0xFE0), false, memory, (startAddr & 0xFE0), startAddr - (startAddr & 0xFE0) + 1);
+	  }
+	  
       // check to see if we need to read memory for the end of the block
-      if (((startAddr + len - 1) & 0x07) != 0x07) 
-         read((startAddr + len), false, memory, (startAddr + len), 
-               ((startAddr + len) | 0x07) - (startAddr + len) + 1);
-
+	  if (scratchPadSize == 8)
+	  {
+		  if (((startAddr + len - 1) & 0x07) != 0x07)
+			  read((startAddr + len), false, memory, (startAddr + len),
+				  ((startAddr + len) | 0x07) - (startAddr + len) + 1);
+	  }
+	  else
+	  {
+		  if (((startAddr + len - 1) & 0x1F) != 0x1F)
+			  read((startAddr + len), false, memory, (startAddr + len),
+				  ((startAddr + len) | 0x1F) - (startAddr + len) + 1);
+	  }
+	  
       do
       {
          // calculate room left in current page
@@ -687,36 +710,36 @@ class MemoryBankEEPROM
          else
             nextx = len;
 
-         System.arraycopy(memory, (((startx + startAddr) / 8) * 8), raw_buf, 0, 8);
+		System.arraycopy(memory, (((startx + startAddr) / scratchPadSize) * scratchPadSize), raw_buf, 0, scratchPadSize);
 
-         if ((nextx - startx) == 8)
+		if ((nextx - startx) == scratchPadSize)
          {
-            System.arraycopy(writeBuf, offset + startx, raw_buf, 0, 8);
+			 System.arraycopy(writeBuf, offset + startx, raw_buf, 0, scratchPadSize);
          }
          else
          {
-            if (((startAddr + nextx) % 8) == 0)
+			 if (((startAddr + nextx) % scratchPadSize) == 0)
             {
-               System.arraycopy(writeBuf, offset + startx, raw_buf, ((startAddr + startx) % 8),
-                                8-((startAddr + startx) % 8));
+				System.arraycopy(writeBuf, offset + startx, raw_buf, ((startAddr + startx) % scratchPadSize),
+								scratchPadSize - ((startAddr + startx) % scratchPadSize));
             }
             else
             {
-               System.arraycopy(writeBuf, offset+startx, raw_buf, ((startAddr+startx) % 8),
-                               ((startAddr+nextx) % 8)-((startAddr+startx) % 8));
+				System.arraycopy(writeBuf, offset + startx, raw_buf, ((startAddr + startx) % scratchPadSize),
+							   ((startAddr + nextx) % scratchPadSize) - ((startAddr + startx) % scratchPadSize));
             }
          }
 
          // write the page of data to scratchpad (always do full scratchpad)
-         sp.writeScratchpad(abs_addr + startx + room_left - 8, raw_buf, 0, 8);
+		 sp.writeScratchpad(abs_addr + startx + room_left - scratchPadSize, raw_buf, 0, scratchPadSize);
 
          // Copy data from scratchpad into memory
-         sp.copyScratchpad(abs_addr + startx + room_left - 8, 8);
+		 sp.copyScratchpad(abs_addr + startx + room_left - scratchPadSize, scratchPadSize);
 
          if (startAddr >= pageLength)
-            System.arraycopy(raw_buf, 0, memory, (((startx + startAddr) / 8) * 8) - 32, 8);
+			 System.arraycopy(raw_buf, 0, memory, (((startx + startAddr) / scratchPadSize) * scratchPadSize) - 32, scratchPadSize);
          else
-            System.arraycopy(raw_buf, 0, memory, (((startx + startAddr) / 8) * 8), 8);
+			 System.arraycopy(raw_buf, 0, memory, (((startx + startAddr) / scratchPadSize) * scratchPadSize), scratchPadSize);
 
          // point to next index
          startx = nextx;

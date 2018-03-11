@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
+ * Copyright (C) 1999-2006 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -32,112 +32,128 @@ package com.dalsemi.onewire.container;
 import com.dalsemi.onewire.*;
 import com.dalsemi.onewire.utils.*;
 import com.dalsemi.onewire.adapter.*;
+import java.util.*;
 
 
 //----------------------------------------------------------------------------
 
 /**
- * <P> 1-Wire container for temperature iButton which measures temperatures
- * from -55@htmlonly &#176C @endhtmlonly to +125@htmlonly &#176C @endhtmlonly, DS18B20.  This container encapsulates the
- * functionality of the iButton family type <B>28</B> (hex)</P>
+ * <P> 1-Wire&reg; container for a 1-Wire programmable resolution digital
+ * thermometer with "sequence detect" and PIO, the DS28EA00.
+ * This container encapsulates the functionality of the iButton family type 
+ * <B>42</B> (hex)</P>
  *
  * <H3> Features </H3>
  * <UL>
- *   <LI> Measures temperatures from -55@htmlonly &#176C @endhtmlonly to +125@htmlonly &#176C @endhtmlonly. Fahrenheit
- *        equivalent is -67@htmlonly &#176F @endhtmlonly to +257@htmlonly &#176F @endhtmlonly
- *   <LI> Power supply range is 3.0V to 5.5V
- *   <LI> Zero standby power
- *   <LI> +/- 0.5@htmlonly &#176C @endhtmlonly accuracy from -10@htmlonly &#176C @endhtmlonly to +85@htmlonly &#176C @endhtmlonly
- *   <LI> Thermometer resolution programmable from 9 to 12 bits
- *   <LI> Converts 12-bit temperature to digital word in 750 ms (max.)
- *   <LI> User-definable, nonvolatile temperature alarm settings
- *   <LI> Alarm search command identifies and addresses devices whose temperature is
- *        outside of programmed limits (temperature alarm condition)
+ *   <LI> Standard and Overdrive 1-Wire speed
+ *   <LI> Improved 1-Wire interface with hysteresis and glitch filter
+ *   <LI> Two general-purpose IO pins
+ *   <LI> Chain function sharing the IO pins to detect physical sequence of 
+ *        devices in network
+ *   <LI> Can be powered from data line. Power supply range is 3.0V to 5.5V
+ *   <LI> Measures temperatures from –40°C to +85°C
+ *   <LI> @htmlonly &#177 @endhtmlonly 0.5°C accuracy from –10°C to +85°C
+ *   <LI> @htmlonly &#177 @endhtmlonly 2°C accuracy from –40°C to +85°C
+ *   <LI> Thermometer resolution is user-selectable from 9 to 12 bits
+ *   <LI> Converts temperature to 12-bit digital word in 750ms (max.)
+ *   <LI> User-definable nonvolatile (NV) alarm threshold settings/user bytes
+ *   <LI> Alarm search command to quickly identify devices whose temperature 
+ *        is outside of programmed limits 
+ *   <LI> Software-compatible and pin-compatible with the DS28EA00
  * </UL>
  *
  * <H3> Usage </H3>
  *
  * <DL>
- * <DD> See the usage example in
+ * <DD> See the temperature usage example in
  * {@link com.dalsemi.onewire.container.TemperatureContainer TemperatureContainer}
  * for temperature specific operations.
+ * </DL>
+ * 
+ * <DL>
+ * <DD> See the switch usage example in
+ * {@link com.dalsemi.onewire.container.SwitchContainer SwitchContainer}
+ * for switch specific operations.
  * </DL>
  *
  * <H3> DataSheet </H3>
  * <DL>
- * <DD><A HREF="http://pdfserv.maxim-ic.com/arpdf/DS18B20.pdf"> http://pdfserv.maxim-ic.com/arpdf/DS18B20.pdf</A>
+ * <DD><A HREF="http://www.maxim-ic.com/DS28EA00"> http://www.maxim-ic.com/DS28EA00</A>
  * </DL>
  *
  * @see com.dalsemi.onewire.container.TemperatureContainer
  *
- * @version    1.00, 15 September 2000
+ * @version    1.00, 15 September 2006
  * @author     BH
  */
-public class OneWireContainer28
+public class OneWireContainer42
    extends OneWireContainer
-   implements TemperatureContainer
+   implements TemperatureContainer, SwitchContainer
 {
 
    //-------------------------------------------------------------------------
    //-------- Static Final Variables
    //-------------------------------------------------------------------------
 
-   /** DS18B20 writes data to scratchpad command */
+   /** DS28EA00 writes data to scratchpad command */
    public static final byte WRITE_SCRATCHPAD_COMMAND = ( byte ) 0x4E;
 
-   /** DS18B20 reads data from scratchpad command */
+   /** DS28EA00 reads data from scratchpad command */
    public static final byte READ_SCRATCHPAD_COMMAND = ( byte ) 0xBE;
 
-   /** DS18B20 copys data from scratchpad to E-squared memory command */
+   /** DS28EA00 copys data from scratchpad to E-squared memory command */
    public static final byte COPY_SCRATCHPAD_COMMAND = ( byte ) 0x48;
 
-   /** DS18B20 converts temperature command */
+   /** DS28EA00 converts temperature command */
    public static final byte CONVERT_TEMPERATURE_COMMAND = ( byte ) 0x44;
 
-   /** DS18B20 recalls E-squared memory command */
+   /** DS28EA00 recalls E-squared memory command */
    public static final byte RECALL_E2MEMORY_COMMAND = ( byte ) 0xB8;
 
-   /**
-    * DS18B20 reads power supply command.  This command is used to determine
-    * if external power is supplied.
-    */
+   /** DS28EA00 read power supply command.  This command is used to determine if external power is supplied. */
    public static final byte READ_POWER_SUPPLY_COMMAND = ( byte ) 0xB4;
 
-   /** DS18B20 12-bit resolution constant for CONFIG byte  */
+   /** DS28EA00 12-bit resolution constant for CONFIG byte  */
    public static final byte RESOLUTION_12_BIT = ( byte ) 0x7F;
 
-   /** DS18B20 11-bit resolution constant for CONFIG byte  */
+   /** DS28EA00 11-bit resolution constant for CONFIG byte  */
    public static final byte RESOLUTION_11_BIT = ( byte ) 0x5F;
 
-   /** DS18B20 10-bit resolution constant for CONFIG byte  */
+   /** DS28EA00 10-bit resolution constant for CONFIG byte  */
    public static final byte RESOLUTION_10_BIT = ( byte ) 0x3F;
 
-   /** DS18B20 9-bit resolution constant for CONFIG byte   */
+   /** DS28EA00 9-bit resolution constant for CONFIG byte   */
    public static final byte RESOLUTION_9_BIT = ( byte ) 0x1F;
 
+   /** PIO Access read command */
+   public static final byte PIO_ACCESS_READ = ( byte ) 0xF5;
+
+   /** PIO Access read command */
+   public static final byte PIO_ACCESS_WRITE = ( byte ) 0xA5; // Note the change from DS2413's 0x5A
+
    /**
-    * Creates an empty <code>OneWireContainer28</code>.  Must call
+    * Creates an empty <code>OneWireContainer42</code>.  Must call
     * <code>setupContainer()</code> before using this new container.<p>
     *
-    * This is one of the methods to construct a <code>OneWireContainer28</code>.
-    * The others are through creating a <code>OneWireContainer28</code> with
+    * This is one of the methods to construct a <code>OneWireContainer42</code>.
+    * The others are through creating a <code>OneWireContainer42</code> with
     * parameters.
     *
-    * @see #OneWireContainer28(DSPortAdapter,byte[])
-    * @see #OneWireContainer28(DSPortAdapter,long)
-    * @see #OneWireContainer28(DSPortAdapter,String)
+    * @see #OneWireContainer42(DSPortAdapter,byte[])
+    * @see #OneWireContainer42(DSPortAdapter,long)
+    * @see #OneWireContainer42(DSPortAdapter,String)
     */
-   public OneWireContainer28 ()
+   public OneWireContainer42 ()
    {
       super();
    }
 
    /**
-    * Creates a <code>OneWireContainer28</code> with the provided adapter
+    * Creates a <code>OneWireContainer42</code> with the provided adapter
     * object and the address of this One-Wire device.
     *
-    * This is one of the methods to construct a <code>OneWireContainer28</code>.
-    * The others are through creating a <code>OneWireContainer28</code> with
+    * This is one of the methods to construct a <code>OneWireContainer42</code>.
+    * The others are through creating a <code>OneWireContainer42</code> with
     * different parameters types.
     *
     * @param  sourceAdapter     adapter object required to communicate with
@@ -145,21 +161,21 @@ public class OneWireContainer28
     * @param  newAddress        address of this One-Wire device
     *
     * @see com.dalsemi.onewire.utils.Address
-    * @see #OneWireContainer28()
-    * @see #OneWireContainer28(DSPortAdapter,long)
-    * @see #OneWireContainer28(DSPortAdapter,String)
+    * @see #OneWireContainer42()
+    * @see #OneWireContainer42(DSPortAdapter,long)
+    * @see #OneWireContainer42(DSPortAdapter,String)
     */
-   public OneWireContainer28 (DSPortAdapter sourceAdapter, byte[] newAddress)
+   public OneWireContainer42 (DSPortAdapter sourceAdapter, byte[] newAddress)
    {
       super(sourceAdapter, newAddress);
    }
 
    /**
-    * Creates a <code>OneWireContainer28</code> with the provided adapter
+    * Creates a <code>OneWireContainer42</code> with the provided adapter
     * object and the address of this One-Wire device.
     *
-    * This is one of the methods to construct a <code>OneWireContainer28</code>.
-    * The others are through creating a <code>OneWireContainer28</code> with
+    * This is one of the methods to construct a <code>OneWireContainer42</code>.
+    * The others are through creating a <code>OneWireContainer42</code> with
     * different parameters types.
     *
     * @param  sourceAdapter     adapter object required to communicate with
@@ -167,21 +183,21 @@ public class OneWireContainer28
     * @param  newAddress        address of this One-Wire device
     *
     * @see com.dalsemi.onewire.utils.Address
-    * @see #OneWireContainer28()
-    * @see #OneWireContainer28(DSPortAdapter,byte[])
-    * @see #OneWireContainer28(DSPortAdapter,String)
+    * @see #OneWireContainer42()
+    * @see #OneWireContainer42(DSPortAdapter,byte[])
+    * @see #OneWireContainer42(DSPortAdapter,String)
     */
-   public OneWireContainer28 (DSPortAdapter sourceAdapter, long newAddress)
+   public OneWireContainer42 (DSPortAdapter sourceAdapter, long newAddress)
    {
       super(sourceAdapter, newAddress);
    }
 
    /**
-    * Creates a <code>OneWireContainer28</code> with the provided adapter
+    * Creates a <code>OneWireContainer42</code> with the provided adapter
     * object and the address of this One-Wire device.
     *
-    * This is one of the methods to construct a <code>OneWireContainer28</code>.
-    * The others are through creating a <code>OneWireContainer28</code> with
+    * This is one of the methods to construct a <code>OneWireContainer42</code>.
+    * The others are through creating a <code>OneWireContainer42</code> with
     * different parameters types.
     *
     * @param  sourceAdapter     adapter object required to communicate with
@@ -189,13 +205,67 @@ public class OneWireContainer28
     * @param  newAddress        address of this One-Wire device
     *
     * @see com.dalsemi.onewire.utils.Address
-    * @see #OneWireContainer28()
-    * @see #OneWireContainer28(DSPortAdapter,byte[])
-    * @see #OneWireContainer28(DSPortAdapter,long)
+    * @see #OneWireContainer42()
+    * @see #OneWireContainer42(DSPortAdapter,byte[])
+    * @see #OneWireContainer42(DSPortAdapter,long)
     */
-   public OneWireContainer28 (DSPortAdapter sourceAdapter, String newAddress)
+   public OneWireContainer42 (DSPortAdapter sourceAdapter, String newAddress)
    {
       super(sourceAdapter, newAddress);
+   }
+
+   /**
+    * Gets an enumeration of memory bank instances that implement one or more
+    * of the following interfaces:
+    * {@link com.dalsemi.onewire.container.MemoryBank MemoryBank},
+    * {@link com.dalsemi.onewire.container.PagedMemoryBank PagedMemoryBank},
+    * and {@link com.dalsemi.onewire.container.OTPMemoryBank OTPMemoryBank}.
+    * @return <CODE>Enumeration</CODE> of memory banks
+    */
+   public Enumeration getMemoryBanks ()
+   {
+      Vector bank_vector = new Vector(3);
+
+      // Status
+      //bank_vector.addElement(new MemoryBankScratachTemp(this));
+
+      // Temperature
+      MemoryBankScratchTemp temp = new MemoryBankScratchTemp(this);
+      temp.bankDescription      = "Temperature";
+      temp.generalPurposeMemory = false;
+      temp.startPhysicalAddress = 0;
+      temp.size                 = 2;
+      temp.readWrite            = false;
+      temp.readOnly             = true;
+      temp.nonVolatile          = false;
+      temp.powerDelivery        = true;
+      bank_vector.addElement(temp);
+
+      // Threshold
+      temp = new MemoryBankScratchTemp(this);
+      temp.bankDescription      = "TH/TL Alarm Trip Points";
+      temp.generalPurposeMemory = true;
+      temp.startPhysicalAddress = 2;
+      temp.size                 = 2;
+      temp.readWrite            = true;
+      temp.readOnly             = false;
+      temp.nonVolatile          = true;
+      temp.powerDelivery        = true;
+      bank_vector.addElement(temp);
+
+      // Elapsed Timer Meter
+      temp = new MemoryBankScratchTemp(this);
+      temp.bankDescription      = "Status/Configuration";
+      temp.generalPurposeMemory = false;
+      temp.startPhysicalAddress = 4;
+      temp.size                 = 1;
+      temp.readWrite            = true;
+      temp.readOnly             = false;
+      temp.nonVolatile          = true;
+      temp.powerDelivery        = true;
+      bank_vector.addElement(temp);
+
+      return bank_vector.elements();
    }
 
    //--------
@@ -204,14 +274,14 @@ public class OneWireContainer28
 
    /**
     * Retrieves the Maxim Integrated Products part number of this
-    * <code>OneWireContainer28</code> as a <code>String</code>.
-    * For example 'DS18B20'.
+    * <code>OneWireContainer42</code> as a <code>String</code>.
+    * For example 'DS28EA00'.
     *
-    * @return this <code>OneWireContainer28</code> name
+    * @return this <code>OneWireContainer42</code> name
     */
    public String getName ()
    {
-      return "DS18B20";
+      return "DS28EA00";
    }
 
    /**
@@ -220,25 +290,41 @@ public class OneWireContainer28
     * depending on packaging.  There can also be nicknames such as
     * 'Crypto iButton'.
     *
-    * @return this <code>OneWireContainer28</code> alternate names
+    * @return this <code>OneWireContainer42</code> alternate names
     */
    public String getAlternateNames ()
    {
-      return "DS1820B, DS18B20X";
+      return "DS28EA00U+";
    }
 
    /**
-    * Retrieves a short description of the function of this
-    * <code>OneWireContainer28</code> type.
+    * Retrieves a short description of the function of this device
+    * <code>OneWireContainer42</code> type.
     *
-    * @return <code>OneWireContainer28</code> functional description
+    * @return <code>OneWireContainer42</code> functional description
     */
    public String getDescription ()
    {
-      return "Digital thermometer measures temperatures from "
-             + "-55C to 125C in 0.75 seconds (max).  +/- 0.5C "
-             + "accuracy between -10C and 85C. Thermometer "
-             + "resolution is programmable at 9, 10, 11, and 12 bits. ";
+	   return "Programmable resolution digital thermometer with "
+		     + "'sequence detect' and 2 PIO channels. It measures "
+		     + "temperature from -40°C to +85°C in 0.75 seconds (max). "  
+           + "Its accuracy is ±0.5°C between -10°C and 85°C and "
+           + "±2°C accuracy from –40°C to +85°C. Thermometer "
+           + "resolution is programmable at 9, 10, 11, and 12 "
+           + "bits. PIO channels can be used as generic channels "
+		     + "or used in 'Chain' mode to detect the physical "
+           + "sequence of devices in a 1-Wire network.";
+   }
+   /**
+    * Returns the maximum speed this iButton or 1-Wire device can
+    * communicate at.
+    *
+    * @return maximum speed
+    * @see DSPortAdapter#setSpeed
+   */
+   public int getMaxSpeed ()
+   {
+      return DSPortAdapter.SPEED_OVERDRIVE;
    }
 
    //--------
@@ -249,7 +335,7 @@ public class OneWireContainer28
     * Checks to see if this temperature measuring device has high/low
     * trip alarms.
     *
-    * @return <code>true</code> if this <code>OneWireContainer28</code>
+    * @return <code>true</code> if this <code>OneWireContainer42</code>
     *         has high/low trip alarms
     *
     * @see    #getTemperatureAlarm
@@ -263,7 +349,7 @@ public class OneWireContainer28
    /**
     * Checks to see if this device has selectable temperature resolution.
     *
-    * @return <code>true</code> if this <code>OneWireContainer28</code>
+    * @return <code>true</code> if this <code>OneWireContainer42</code>
     *         has selectable temperature resolution
     *
     * @see    #getTemperatureResolution
@@ -279,7 +365,7 @@ public class OneWireContainer28
     * Gets an array of available temperature resolutions in Celsius.
     *
     * @return byte array of available temperature resolutions in Celsius for
-    *         this <code>OneWireContainer28</code>. The minimum resolution is
+    *         this <code>OneWireContainer42</code>. The minimum resolution is
     *         returned as the first element and maximum resolution as the last
     *         element.
     *
@@ -303,7 +389,7 @@ public class OneWireContainer28
     * Gets the temperature alarm resolution in Celsius.
     *
     * @return temperature alarm resolution in Celsius for this
-    *         <code>OneWireContainer28</code>
+    *         <code>OneWireContainer42</code>
     *
     * @see    #hasTemperatureAlarms
     * @see    #getTemperatureAlarm
@@ -319,26 +405,26 @@ public class OneWireContainer28
     * Gets the maximum temperature in Celsius.
     *
     * @return maximum temperature in Celsius for this
-    *         <code>OneWireContainer28</code>
+    *         <code>OneWireContainer42</code>
     *
     * @see    #getMinTemperature
     */
    public double getMaxTemperature ()
    {
-      return 125.0;
+      return 85.0;
    }
 
    /**
     * Gets the minimum temperature in Celsius.
     *
     * @return minimum temperature in Celsius for this
-    *         <code>OneWireContainer28</code>
+    *         <code>OneWireContainer42</code>
     *
     * @see    #getMaxTemperature
     */
    public double getMinTemperature ()
    {
-      return -55.0;
+      return -40.0;
    }
 
    //--------
@@ -351,7 +437,7 @@ public class OneWireContainer28
     * @param  state byte array with device state information
     *
     * @throws OneWireIOException on a 1-Wire communication error such as
-    *         reading an incorrect CRC from this <code>OneWireContainer28</code>.
+    *         reading an incorrect CRC from this <code>OneWireContainer42</code>.
     *         This could be caused by a physical interruption in the 1-Wire
     *         Network due to shorts or a newly arriving 1-Wire device issuing a
     *         'presence pulse'.
@@ -408,18 +494,19 @@ public class OneWireContainer28
          // check to see if the temperature conversion is over
          if (adapter.getByte() != 0xFF)
             throw new OneWireIOException(
-               "OneWireContainer28-temperature conversion not complete");
+               "OneWireContainer42-temperature conversion not complete");
 
-         // BH added call to recallE2 to get new converted temperature into "state" variable
+         // return new converted temperature in "state" variable
          adapter.select(address);
          state = recallE2();
+
       }
       else
       {
 
          // device must not have been present
          throw new OneWireIOException(
-            "OneWireContainer28-device not present");
+            "OneWireContainer42-device not present");
       }
    }
 
@@ -432,13 +519,13 @@ public class OneWireContainer28
     * data retrieved from the <code>readDevice()</code> method.
     *
     * @param  state byte array with device state information for this
-    *         <code>OneWireContainer28</code>
+    *         <code>OneWireContainer42</code>
     *
     * @return temperature in Celsius from the last
     *                     <code>doTemperatureConvert()</code>
     *
     * @throws OneWireIOException on a 1-Wire communication error such as
-    *         reading an incorrect CRC from this <code>OneWireContainer28</code>.
+    *         reading an incorrect CRC from this <code>OneWireContainer42</code>.
     *         This could be caused by a physical interruption in the 1-Wire
     *         Network due to shorts or a newly arriving 1-Wire device issuing a
     *         'presence pulse'.
@@ -482,7 +569,7 @@ public class OneWireContainer28
     * @param  state     byte array with device state information
     *
     * @return temperature alarm trip values in Celsius for this
-    *         <code>OneWireContainer28</code>
+    *         <code>OneWireContainer42</code>
     *
     * @see    #hasTemperatureAlarms
     * @see    #setTemperatureAlarm
@@ -501,7 +588,7 @@ public class OneWireContainer28
     * @param  state byte array with device state information
     *
     * @return temperature resolution in Celsius for this
-    *         <code>OneWireContainer28</code>
+    *         <code>OneWireContainer42</code>
     *
     * @see    #RESOLUTION_9_BIT
     * @see    #RESOLUTION_10_BIT
@@ -563,9 +650,9 @@ public class OneWireContainer28
       if ((alarmType != ALARM_LOW) && (alarmType != ALARM_HIGH))
          throw new IllegalArgumentException("Invalid alarm type.");
 
-      if (alarmValue > 125.0 || alarmValue < -55.0)
+      if (alarmValue > 85.0 || alarmValue < -40.0)
          throw new IllegalArgumentException(
-            "Value for alarm not in accepted range.  Must be -55 C <-> +125 C.");
+            "Value for alarm not in accepted range.  Must be -40 C <-> +85 C.");
 
       state [(alarmType == ALARM_LOW) ? 3
                                       : 2] = ( byte ) alarmValue;
@@ -617,13 +704,13 @@ public class OneWireContainer28
    }
 
    /**
-    * Retrieves this <code>OneWireContainer28</code> state information.
+    * Retrieves this <code>OneWireContainer42</code> state information.
     * The state information is returned as a byte array.  Pass this byte
     * array to the '<code>get</code>' and '<code>set</code>' methods.
     * If the device state needs to be changed, then call the
     * <code>writeDevice()</code> to finalize the changes.
     *
-    * @return <code>OneWireContainer28</code> state information.
+    * @return <code>OneWireContainer42</code> state information.
     * Device state looks like this:
     * <pre>
     *   0 : temperature LSB
@@ -635,10 +722,25 @@ public class OneWireContainer28
     *   6 : reserved
     *   7 : reserved
     *   8 : an 8 bit CRC of the previous 8 bytes
+    *   9 : PIO Status bit assignment to write (this is a "don't care" for a read)
+    *   10: PIO Status bit assignment to read
+    * 
+    * PIO Status Bit Assignment from PIO Access Write [A5H]:
+    *   b7-b2 = all ones      
+    *   b1=PIOB Pin State     
+    *   b0=PIOA Pin State   
+    * 
+    * PIO Status Bit Assignment from PIO Access Read [F5H]:
+    *   b7-b4 = Complement of b3 to b0     
+    *   b3= PIOB Output Latch State   
+    *   b2=PIOB Pin State     
+    *   b1=PIOA Output Latch State   
+    *   b0= PIOA Pin State
+    * 
     * </pre>
     *
     * @throws OneWireIOException on a 1-Wire communication error such as
-    *         reading an incorrect CRC from this <code>OneWireContainer28</code>.
+    *         reading an incorrect CRC from this <code>OneWireContainer42</code>.
     *         This could be caused by a physical interruption in the 1-Wire
     *         Network due to shorts or a newly arriving 1-Wire device issuing a
     *         'presence pulse'.
@@ -651,23 +753,43 @@ public class OneWireContainer28
       throws OneWireIOException, OneWireException
    {
 
-      byte[] data;
+      byte[] scratchData;
+      byte[] switchData = new byte[2];
+      byte[] resultBuff = new byte[11];
 
-      data = recallE2();
+      // scratchpad read
+      scratchData = recallE2();
 
-      return data;
+      // switch read
+      switchData[0] = (byte) PIO_ACCESS_READ;  // PIO Access Read Command
+      switchData[1] = (byte) 0xFF;  // Used to read the PIO Status Bit Assignment
+
+      // select the device
+      if (adapter.select(address))
+      {
+         adapter.dataBlock(switchData, 0, 2);
+      }
+      else
+         throw new OneWireIOException("Device select failed");
+
+      // copy data to the results buffer
+      System.arraycopy(scratchData,0,resultBuff,0,9);
+      resultBuff[9] = switchData[0]; // Since this is a read, we don't care what this byte is
+      resultBuff[10] = switchData[1];
+
+      return resultBuff; 
    }
 
    /**
-    * Writes to this <code>OneWireContainer28</code> <code>state</code>
+    * Writes to this <code>OneWireContainer42</code> <code>state</code>
     * information that have been changed by '<code>set</code>' methods.
-    * Only the state registers that changed are updated.  This is done
+    * Only the device's "changed" state information is written to the part.  This is done
     * by referencing a field information appended to the state data.
     *
-    * @param  state      byte array with device state information
+    * @param  state      byte array with device state information from a previous readDevice()
     *
     * @throws OneWireIOException on a 1-Wire communication error such as
-    *         reading an incorrect CRC from this <code>OneWireContainer28</code>.
+    *         reading an incorrect CRC from this <code>OneWireContainer42</code>.
     *         This could be caused by a physical interruption in the 1-Wire
     *         Network due to shorts or a newly arriving 1-Wire device issuing a
     *         'presence pulse'.
@@ -680,7 +802,8 @@ public class OneWireContainer28
       throws OneWireIOException, OneWireException
    {
       byte[] temp = new byte [3];
-
+      byte[] switchBuff = new byte [5];
+      
       temp [0] = state [2];
       temp [1] = state [3];
       temp [2] = state [4];
@@ -690,20 +813,39 @@ public class OneWireContainer28
 
       // Place in memory.
       copyScratchpad();
+
+      // Write switch information
+      switchBuff[0] = (byte) PIO_ACCESS_WRITE;  // PIO Access Write Command
+      switchBuff[1] = (byte) state[9];  // Channel write information
+      switchBuff[2] = (byte) ~state[9]; // Inverted write byte
+      switchBuff[3] = (byte) 0xFF;      // Confirmation Byte
+      switchBuff[4] = (byte) 0xFF;      // PIO Pin Status
+
+      // select the device
+      if (adapter.select(address))
+      {
+         adapter.dataBlock(switchBuff, 0, 5);
+      }
+      else
+         throw new OneWireIOException("OneWireContainer42-Device select failed");
+
+      if(switchBuff[3] != (byte) 0x00AA)
+      {
+         throw new OneWireIOException("OneWireContainer42-Failure to change latch state.");
+      }
    }
 
    //--------
    //-------- Custom Methods for this iButton Type
    //--------
-   //-------------------------------------------------------------------------
 
    /**
-    * Reads the Scratchpad of the DS18B20.
+    * Reads the Scratchpad of the DS28EA00.
     *
     * @return 9-byte buffer representing the scratchpad
     *
     * @throws OneWireIOException on a 1-Wire communication error such as
-    *         reading an incorrect CRC from this <code>OneWireContainer28</code>.
+    *         reading an incorrect CRC from this <code>OneWireContainer42</code>.
     *         This could be caused by a physical interruption in the 1-Wire
     *         Network due to shorts or a newly arriving 1-Wire device issuing a
     *         'presence pulse'.
@@ -746,18 +888,17 @@ public class OneWireContainer28
             return (result_block);
          else
             throw new OneWireIOException(
-               "OneWireContainer28-Error reading CRC8 from device.");
+               "OneWireContainer42-Error reading CRC8 from device.");
       }
 
       // device must not have been present
       throw new OneWireIOException(
-         "OneWireContainer28-Device not found on 1-Wire Network");
+         "OneWireContainer42-Device not found on 1-Wire Network");
    }
 
-   //-------------------------------------------------------------------------
 
    /**
-    * Writes to the Scratchpad of the DS18B20.
+    * Writes to the Scratchpad of the DS28EA00.
     *
     * @param data data to be written to the scratchpad.  First
     *             byte of data must be the temperature High Trip Point, the
@@ -765,7 +906,7 @@ public class OneWireContainer28
     *             the third must be the Resolution (configuration register).
     *
     * @throws OneWireIOException on a 1-Wire communication error such as
-    *         reading an incorrect CRC from this <code>OneWireContainer28</code>.
+    *         reading an incorrect CRC from this <code>OneWireContainer42</code>.
     *         This could be caused by a physical interruption in the 1-Wire
     *         Network due to shorts or a newly arriving 1-Wire device issuing a
     *         'presence pulse'.
@@ -795,7 +936,7 @@ public class OneWireContainer28
 
          // device must not have been present
          throw new OneWireIOException(
-            "OneWireContainer28-Device not found on 1-Wire Network");
+            "OneWireContainer42-Device not found on 1-Wire Network");
       }
 
       // double check by reading scratchpad
@@ -809,19 +950,18 @@ public class OneWireContainer28
 
          // writing to scratchpad failed
          throw new OneWireIOException(
-            "OneWireContainer28-Error writing to scratchpad");
+            "OneWireContainer42-Error writing to scratchpad");
       }
 
       return;
    }
 
-   //-------------------------------------------------------------------------
 
    /**
-    * Copies the Scratchpad to the E-squared memory of the DS18B20.
+    * Copies the Scratchpad to the E-squared memory of the DS28EA00.
     *
     * @throws OneWireIOException on a 1-Wire communication error such as
-    *         reading an incorrect CRC from this <code>OneWireContainer28</code>.
+    *         reading an incorrect CRC from this <code>OneWireContainer42</code>.
     *         This could be caused by a physical interruption in the 1-Wire
     *         Network due to shorts or a newly arriving 1-Wire device issuing a
     *         'presence pulse'.
@@ -845,7 +985,7 @@ public class OneWireContainer28
          adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
          adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
 
-         // send the convert temperature command
+         // send the copy scratchpad command
          adapter.putByte(COPY_SCRATCHPAD_COMMAND);
 
          // sleep for 10 milliseconds to allow copy to take place.
@@ -864,7 +1004,7 @@ public class OneWireContainer28
 
          // device must not have been present
          throw new OneWireIOException(
-            "OneWireContainer28-Device not found on 1-Wire Network");
+            "OneWireContainer42-Device not found on 1-Wire Network");
       }
 
       // third, let's read the scratchpad again with the recallE2 command and compare.
@@ -879,21 +1019,20 @@ public class OneWireContainer28
 
          // copying to scratchpad failed
          throw new OneWireIOException(
-            "OneWireContainer28-Error copying scratchpad to E2 memory.");
+            "OneWireContainer42-Error copying scratchpad to E2 memory.");
       }
    }
 
-   //-------------------------------------------------------------------------
 
    /**
-    * Recalls the DS18B20 temperature trigger values (<code>ALARM_HIGH</code>
+    * Recalls the DS28EA00 temperature trigger values (<code>ALARM_HIGH</code>
     * and <code>ALARM_LOW</code>) and the configuration register to the
     * scratchpad and reads the scratchpad.
     *
     * @return byte array representing data in the device's scratchpad.
     *
     * @throws OneWireIOException on a 1-Wire communication error such as
-    *         reading an incorrect CRC from this <code>OneWireContainer28</code>.
+    *         reading an incorrect CRC from this <code>OneWireContainer42</code>.
     *         This could be caused by a physical interruption in the 1-Wire
     *         Network due to shorts or a newly arriving 1-Wire device issuing a
     *         'presence pulse'.
@@ -920,19 +1059,18 @@ public class OneWireContainer28
 
       // device must not have been present
       throw new OneWireIOException(
-         "OneWireContainer28-Device not found on 1-Wire Network");
+         "OneWireContainer42-Device not found on 1-Wire Network");
    }
-
-   //-------------------------------------------------------------------------
+ 
 
    /**
-    * Reads the way power is supplied to the DS18B20.
+    * Reads the way power is supplied to the DS28EA00.
     *
     * @return <code>true</code> for external power, <BR>
     *         <code>false</code> for parasite power
     *
     * @throws OneWireIOException on a 1-Wire communication error such as
-    *         reading an incorrect CRC from this <code>OneWireContainer28</code>.
+    *         reading an incorrect CRC from this <code>OneWireContainer42</code>.
     *         This could be caused by a physical interruption in the 1-Wire
     *         Network due to shorts or a newly arriving 1-Wire device issuing a
     *         'presence pulse'.
@@ -940,15 +1078,14 @@ public class OneWireContainer28
     *         adapter
     */
    public boolean isExternalPowerSupplied ()
-      throws OneWireIOException, OneWireException
+     throws OneWireIOException, OneWireException
    {
       int     intresult = 0;
-      boolean result    = false;
+	  boolean result    = false;
 
       // select the device
       if (adapter.select(address))
       {
-
          // send the "Read Power Supply" memory command
          adapter.putByte(READ_POWER_SUPPLY_COMMAND);
 
@@ -960,16 +1097,14 @@ public class OneWireContainer28
 
          // device must not have been present
          throw new OneWireIOException(
-            "OneWireContainer28-Device not found on 1-Wire Network");
+             "OneWireContainer42-Device not found on 1-Wire Network");
       }
-
       if (intresult != 0x00)
          result = true;   // reads 0xFF for true and 0x00 for false
 
-      return result;
+   return result;
    }
 
-   //-------------------------------------------------------------------------
 
    /**
     * Converts a temperature reading from Celsius to Fahrenheit.
@@ -985,5 +1120,301 @@ public class OneWireContainer28
    public float convertToFahrenheit (float celsiusTemperature)
    {
       return (float)Convert.toFahrenheit(celsiusTemperature);
+   }
+
+
+   //--------
+   //-------- Switch Feature methods
+   //--------
+
+   /**
+    * Gets the number of channels supported by this switch.
+    * Channel specific methods will use a channel number specified
+    * by an integer from [0 to (<code>getNumberChannels(byte[])</code> - 1)].  Note that
+    * all devices of the same family will not necessarily have the
+    * same number of channels.
+    *
+    * @param state current state of the device returned from <code>readDevice()</code>
+    *
+    * @return the number of channels for this device
+    *
+    * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
+    */
+   public int getNumberChannels (byte[] state)
+   {
+      return 2;
+   }
+
+   /**
+    * Checks if the channels of this switch are 'high side'
+    * switches.  This indicates that when 'on' or <code>true</code>, the switch output is
+    * connect to the 1-Wire data.  If this method returns  <code>false</code>
+    * then when the switch is 'on' or <code>true</code>, the switch is connected
+    * to ground.
+    *
+    * @return <code>true</code> if the switch is a 'high side' switch,
+    *         <code>false</code> if the switch is a 'low side' switch
+    *
+    * @see #getLatchState(int,byte[])
+    */
+   public boolean isHighSideSwitch ()
+   {
+      return false;
+   }
+
+   /**
+    * Checks if the channels of this switch support
+    * activity sensing.  If this method returns <code>true</code> then the
+    * method <code>getSensedActivity(int,byte[])</code> can be used.
+    *
+    * @return <code>true</code> if channels support activity sensing
+    *
+    * @see #getSensedActivity(int,byte[])
+    * @see #clearActivity()
+    */
+   public boolean hasActivitySensing ()
+   {
+      return false;
+   }
+
+   /**
+    * Checks if the channels of this switch support
+    * level sensing.  If this method returns <code>true</code> then the
+    * method <code>getLevel(int,byte[])</code> can be used.
+    *
+    * @return <code>true</code> if channels support level sensing
+    *
+    * @see #getLevel(int,byte[])
+    */
+   public boolean hasLevelSensing ()
+   {
+      return true;
+   }
+
+   /**
+    * Checks if the channels of this switch support
+    * 'smart on'. Smart on is the ability to turn on a channel
+    * such that only 1-Wire device on this channel are awake
+    * and ready to do an operation.  This greatly reduces
+    * the time to discover the device down a branch.
+    * If this method returns <code>true</code> then the
+    * method <code>setLatchState(int,boolean,boolean,byte[])</code>
+    * can be used with the <code>doSmart</code> parameter <code>true</code>.
+    *
+    * @return <code>true</code> if channels support 'smart on'
+    *
+    * @see #setLatchState(int,boolean,boolean,byte[])
+    */
+   public boolean hasSmartOn ()
+   {
+      return false;
+   }
+
+   /**
+    * Checks if the channels of this switch require that only one
+    * channel is on at any one time.  If this method returns <code>true</code> then the
+    * method <code>setLatchState(int,boolean,boolean,byte[])</code>
+    * will not only affect the state of the given
+    * channel but may affect the state of the other channels as well
+    * to insure that only one channel is on at a time.
+    *
+    * @return <code>true</code> if only one channel can be on at a time.
+    *
+    * @see #setLatchState(int,boolean,boolean,byte[])
+    */
+   public boolean onlySingleChannelOn ()
+   {
+      return false;
+   }
+
+   //--------
+   //-------- Switch 'get' Methods
+   //--------
+
+   /**
+    * Checks the sensed level on the indicated channel.
+    * To avoid an exception, verify that this switch
+    * has level sensing with the  <code>hasLevelSensing()</code>.
+    * Level sensing means that the device can sense the logic
+    * level on its PIO pin.
+    *
+    * @param channel channel to execute this operation, in the range [0 to (<code>getNumberChannels(byte[])</code> - 1)]
+    * @param state current state of the device returned from <code>readDevice()</code>
+    *
+    * @return <code>true</code> if level sensed is 'high' and <code>false</code> if level sensed is 'low'
+    *
+    * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
+    * @see #hasLevelSensing()
+    */
+   public boolean getLevel (int channel, byte[] state)
+   {
+      byte  level = (byte) (0x01 << (channel*2));
+      return ((state[10] & level) == level);
+   }
+
+   /**
+    * Checks the latch state of the indicated channel.
+    *
+    * @param channel channel to execute this operation, in the range [0 to (<code>getNumberChannels(byte[])</code> - 1)]
+    * @param state current state of the device returned from <code>readDevice()</code>
+    *
+    * @return <code>true</code> if channel latch is 'on'
+    * or conducting and <code>false</code> if channel latch is 'off' and not
+    * conducting.  Note that the actual output when the latch is 'on'
+    * is returned from the <code>isHighSideSwitch()</code> method.
+    *
+    * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
+    * @see #isHighSideSwitch()
+    * @see #setLatchState(int,boolean,boolean,byte[])
+    */
+   public boolean getLatchState (int channel, byte[] state)
+   {
+      byte latch = (byte) (0x01 << ((channel*2)+1));
+      return ((state [10] & latch) == latch);
+   }
+
+   /**
+    * This method always returns false for the DS28EA00 (no activity sensing).
+    * Checks if the indicated channel has experienced activity.
+    * This occurs when the level on the PIO pins changes.  To clear
+    * the activity that is reported, call <code>clearActivity()</code>.
+    * To avoid an exception, verify that this device supports activity
+    * sensing by calling the method <code>hasActivitySensing()</code>.
+    *
+    * @param channel channel to execute this operation, in the range [0 to (<code>getNumberChannels(byte[])</code> - 1)]
+    * @param state current state of the device returned from <code>readDevice()</code>
+    *
+    * @return <code>true</code> if activity was detected and <code>false</code> if no activity was detected
+    *
+    * @throws OneWireException if this device does not have activity sensing
+    *
+    * @see #hasActivitySensing()
+    * @see #clearActivity()
+    */
+   public boolean getSensedActivity (int channel, byte[] state)
+      throws OneWireException
+   {
+      return false;
+   }
+
+   /**
+    * This method does nothing for the DS28EA00 (not needed).
+    * Clears the activity latches the next time possible.  For
+    * example, on a DS2406/07, this happens the next time the
+    * status is read with <code>readDevice()</code>.
+    *
+    * @throws OneWireException if this device does not support activity sensing
+    *
+    * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
+    * @see #getSensedActivity(int,byte[])
+    */
+   public void clearActivity ()
+      throws OneWireException
+   {
+   }
+
+   //--------
+   //-------- Switch 'set' Methods
+   //--------
+
+   /**
+    * Sets the latch state of the indicated channel.
+    * The method <code>writeDevice()</code> must be called to finalize
+    * changes to the device.  Note that multiple 'set' methods can
+    * be called before one call to <code>writeDevice()</code>.
+    *
+    * @param channel channel to execute this operation, in the range [0 to (<code>getNumberChannels(byte[])</code> - 1)]
+    * @param latchState <code>true</code> to set the channel latch 'on'
+    *     (conducting) and <code>false</code> to set the channel latch 'off' (not
+    *     conducting).  Note that the actual output when the latch is 'on'
+    *     is returned from the <code>isHighSideSwitch()</code> method.
+    * @param doSmart If latchState is 'on'/<code>true</code> then doSmart indicates
+    *                  if a 'smart on' is to be done.  To avoid an exception
+    *                  check the capabilities of this device using the
+    *                  <code>hasSmartOn()</code> method.
+    * @param state current state of the device returned from <code>readDevice()</code>
+    *
+    * @see #hasSmartOn()
+    * @see #getLatchState(int,byte[])
+    * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
+    */
+   public void setLatchState (int channel, boolean latchState,
+      boolean doSmart, byte[] state)
+   {
+      byte latch = (byte) (0x01 << channel);
+      byte temp;
+
+      state[9] = (byte) 0x00FC;
+
+      if(getLatchState(0,state))
+      {
+         temp = (byte) 0x01;
+         state[9] = (byte) (((byte) state[9]) | temp);
+      }
+   
+      if(getLatchState(1,state))
+      {
+         temp = (byte) 0x02;
+         state[9] = (byte) (((byte) state[9]) | temp);
+      }
+
+      if (latchState)
+         state[9] = (byte) (state[9] | latch);
+      else
+         state[9] = (byte) (state[9] & ~latch);
+   }
+
+   /**
+    * Sets the latch state for all of the channels.
+    * The method <code>writeDevice()</code> must be called to finalize
+    * changes to the device.  Note that multiple 'set' methods can
+    * be called before one call to <code>writeDevice()</code>.
+    *
+    * @param set the state to set all of the channels, in the range [0 to (<code>getNumberChannels(byte[])</code> - 1)]
+    * @param state current state of the device returned from <code>readDevice()</code>
+    *
+    * @see #getLatchState(int,byte[])
+    * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
+    */
+   public void setLatchState (byte set, byte[] state)
+   {
+      state[9] = (byte) set;
+   }
+
+   /**
+    * This method does nothing for the DS28EA00. 
+    *
+    * @return 1-Wire device register mask
+    *
+    * @throws OneWireIOException on a 1-Wire communication error such as
+    *         reading an incorrect CRC from a 1-Wire device.  This could be
+    *         caused by a physical interruption in the 1-Wire Network due to
+    *         shorts or a newly arriving 1-Wire device issuing a 'presence pulse'.
+    * @throws OneWireException on a communication or setup error with the 1-Wire
+    *         adapter
+    */
+   public byte[] readRegister ()
+      throws OneWireIOException, OneWireException
+   {
+      byte[] register = new byte[3];
+
+      return register;
+   }
+
+    /**
+    * This method does nothing for the DS28EA00. 
+    *
+    * @param  register 1-Wire device sensor state
+    *
+    * @throws OneWireIOException on a 1-Wire communication error such as
+    *         reading an incorrect CRC from a 1-Wire device.  This could be
+    *         caused by a physical interruption in the 1-Wire Network due to
+    *         shorts or a newly arriving 1-Wire device issuing a 'presence pulse'.
+    * @throws OneWireException on a communication or setup error with the 1-Wire
+    *         adapter
+    */
+   public void writeRegister (byte[] register)
+       throws OneWireIOException, OneWireException
+   {
    }
 }

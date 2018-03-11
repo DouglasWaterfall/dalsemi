@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -38,8 +38,8 @@ import com.dalsemi.onewire.container.MemoryBankSHAEE;
 
 
 /**
- * <P>1-Wire&#174 container for the '1K-Bit protected 1-Wire EEPROM with SHA-1
- *  Engine' family type <B>33</B> (hex), Dallas Semiconductor part number:
+ * <P>1-Wire&reg; container for the '1K-Bit protected 1-Wire EEPROM with SHA-1
+ *  Engine' family type <B>33</B> (hex), Maxim Integrated Products part number:
  * <B>DS1961S,DS2432</B>.
  *
  * <H3> Features </H3>
@@ -355,7 +355,7 @@ public class OneWireContainer33
    }
 
    /**
-    * Retrieve the Dallas Semiconductor part number of the iButton
+    * Retrieve the Maxim Integrated Products part number of the iButton
     * as a string.  For example 'DS1992'.
     *
     * @return string represetation of the iButton name.
@@ -366,7 +366,7 @@ public class OneWireContainer33
    }
 
    /**
-    * Retrieve the alternate Dallas Semiconductor part numbers or names.
+    * Retrieve the alternate Maxim Integrated Products part numbers or names.
     * A 'family' of MicroLAN devices may have more than one part number
     * depending on packaging.
     *

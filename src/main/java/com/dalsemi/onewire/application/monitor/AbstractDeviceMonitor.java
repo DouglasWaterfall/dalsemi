@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2002 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -40,8 +40,8 @@ import com.dalsemi.onewire.utils.OWPath;
 /**
  * <P>Abstract super-class for 1-Wire Monitors, a optionally-threadable
  * object for searching 1-Wire networks.  If this object is not run in it's own
- * thread, it is possible to perform single-step searches by calling the search
- * method directly {@see #search(Vector, Vector)}.  The monitor will generate
+ * thread, it is possible to perform single-step searches by calling the NewLine
+ * method directly. @see #search(Vector, Vector).  The monitor will generate
  * events for device arrivals, device departures, and exceptions from the
  * DSPortAdapter.</P>
  *
@@ -52,23 +52,23 @@ import com.dalsemi.onewire.utils.OWPath;
  * circumvent this problem, the device monitor keeps a "missing state count" for
  * each device on the network.  Each search cycle that passes where the device
  * is missing causes it's "missing state count" to be incremented.  Once the
- * device's "missing state count" is equal to the "max state count"
- * {@see #getMaxStateCount()}, a departure event is generated for the device.
+ * device's "missing state count" is equal to the "max state count", 
+ * a departure event is generated for the device. @see #getMaxStateCount().
  * If the 1-Wire Network is not in a touch environment, it may be unnecessary
  * to use this "missing state count".  In those instances, setting the state
- * count to 1 will disable the feature {@see #setMaxStateCount(int)}.</P>
+ * count to 1 will disable the feature. @see #setMaxStateCount(int).</P>
  *
  * <P>Similarly, the reporting of exceptions could be spurious in a
  * touch-contact environment.  Instead of reporting the exception on each
  * failed search attempt, the monitor will default to retrying the search a
- * handful of times {@see #getMaxErrorCount()} before finally reporting the
- * exception.  To disable this feature, set the max error count to 1
- * {@see #setMaxErrorCount(int)}.</P>
+ * handful of times before finally reporting the exception.
+ * @see #getMaxErrorCount().  To disable this feature, set the max error count to 1.
+ * @see #setMaxErrorCount(int).</P>
  *
  * <P>To receive events, an object must implement the
- * <code>DeviceMonitorEventListener</code> interface
- * {@see DeviceMonitorEventListener} and must be added to
- * the list of listeners {@see #addDeviceMonitorEventListener}.</P>
+ * <code>DeviceMonitorEventListener</code> interface.
+ * @see DeviceMonitorEventListener. And the object must be added to
+ * the list of listeners. @see #addDeviceMonitorEventListener.</P>
  *
  * @author SH
  * @version 1.00

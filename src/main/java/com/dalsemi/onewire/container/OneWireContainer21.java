@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999 - 2001 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999 - 2001 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -34,7 +34,7 @@ import com.dalsemi.onewire.adapter.*;
 import java.util.*;
 
 /**
- * <P> 1-Wire&#174 container for a Thermochron iButton, DS1921.
+ * <P> 1-Wire&reg; container for a Thermochron iButton, DS1921.
  * This container encapsulates the functionality of the 1-Wire family type <B>21</B> (hex).
  * </P>
  *
@@ -48,7 +48,7 @@ import java.util.*;
  *   <li> 4096 bits of general-purpose read/write nonvolatile memory
  *   <li> 256-bit scratchpad ensures integrity of data transfer
  *   <li> On-chip 16-bit CRC generator to verify read operations
- *   <li> Long-term histogram with 2&#176 C resolution
+ *   <li> Long-term histogram with 2@htmlonly &#176C @endhtmlonly resolution
  * </UL>
  *
  * <H3> Memory </H3>
@@ -123,7 +123,7 @@ import java.util.*;
  *     <li>Rollover flag enabled.  This means if more than 2048 samples are
  *         taken, the newer samples overwrite the oldest samples in the temperature
  *         log.</li>
- *     <li>High alarm of 28.0&#176 and a low alarm of 23.0&#176 C.  If the alarm is violated,
+ *     <li>High alarm of 28.0@htmlonly &#176C @endhtmlonly and a low alarm of 23.0@htmlonly &#176C @endhtmlonly.  If the alarm is violated,
  *         the Temperature Alarm log will record when and for how long the violation occurred.</li>
  *     <li>The clock alarm enabled to Mondays at 12:30:45 pm.</li>
  *     <li>Sets the Thermocron's Real-Time Clock to the host system's clock.</li>
@@ -305,7 +305,7 @@ public class OneWireContainer21
    // should we update the Real time clock?
    private boolean updatertc = false;
 
-   // Maxim/Dallas Semiconductor Part number
+   // Maxim/Maxim Integrated Products Part number
    private String partNumber = "DS1921";
 
    // Temperature range low temperaturein degrees Celsius
@@ -1201,7 +1201,7 @@ public class OneWireContainer21
    }
 
    /**
-    * Gets the Dallas Semiconductor part number of the iButton
+    * Gets the Maxim Integrated Products part number of the iButton
     * or 1-Wire Device as a <code>java.lang.String</code>.
     * For example "DS1992".
     *
@@ -1213,7 +1213,7 @@ public class OneWireContainer21
    }
 
    /**
-    * Retrieves the alternate Dallas Semiconductor part numbers or names.
+    * Retrieves the alternate Maxim Integrated Products part numbers or names.
     * A 'family' of MicroLAN devices may have more than one part number
     * depending on packaging.  There can also be nicknames such as
     * "Crypto iButton".

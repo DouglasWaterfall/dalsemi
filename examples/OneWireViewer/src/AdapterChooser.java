@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2001 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -33,7 +33,7 @@ import java.util.*;
 import com.dalsemi.onewire.*;
 import com.dalsemi.onewire.adapter.*;
 
-/**
+/************************************************************************************
  * A graphical Adapter Chooser panel for displaying in a dialog.  Allows
  * the user to select (and permanently set) the default <code>DSPortAdapter</code>
  * used by OneWireViewer.  The entire list of all adapters supported on the
@@ -41,7 +41,7 @@ import com.dalsemi.onewire.adapter.*;
  *
  * @author SH
  * @version 1.00
- */
+ *************************************************************************************/
 public class AdapterChooser extends JPanel
 {
    private static final String selectString = "Please Select Port";
@@ -52,9 +52,9 @@ public class AdapterChooser extends JPanel
    private Font textFontBold = null, textFontPlain = null;
    private JTabbedPane tabbedPane = null;
 
-   /**
+   /***********************************************************************************
     * Constructs a new adapter chooser, ready for display.
-    */
+    **********************************************************************************/
    public AdapterChooser(String defaultAdapterName,
                          String defaultAdapterPort,
                          Font textFontBold, Font textFontPlain)
@@ -147,6 +147,7 @@ public class AdapterChooser extends JPanel
          }
 
          // info panel
+         ///////////////////////////////////////////////////////////////
          JPanel infoPanel = new JPanel(new GridLayout(3, 2, 3, 3));
          infoPanel.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createEtchedBorder(), "Port Information"));
@@ -200,6 +201,7 @@ public class AdapterChooser extends JPanel
          Enumeration ports = adapter.getPortNames();
          while(ports.hasMoreElements())
          {
+        
             portList.addItem(ports.nextElement());
          }
 
@@ -209,19 +211,19 @@ public class AdapterChooser extends JPanel
       }
    }
 
-   /**
+   /**************************************************************************************
     * Returns the name of the adpater selected by the user.
     * @return the name of the adpater selected by the user.
-    */
+    *************************************************************************************/
    public String getAdapterName()
    {
       return defaultAdapter.getText();
    }
 
-   /**
+   /**************************************************************************************
     * Returns the port of the adapter selected by the user.
     * @return the port of the adapter selected by the user.
-    */
+    *************************************************************************************/
    public String getAdapterPort()
    {
       return defaultPort.getText();

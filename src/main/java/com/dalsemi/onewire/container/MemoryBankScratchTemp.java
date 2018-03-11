@@ -1,5 +1,6 @@
+
 /*---------------------------------------------------------------------------
- * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
+ * Copyright (C) 2006 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,22 +30,28 @@ package com.dalsemi.onewire.container;
 
 // imports
 import com.dalsemi.onewire.OneWireException;
+import com.dalsemi.onewire.container.OneWireContainer42;
+import com.dalsemi.onewire.adapter.OneWireIOException;
 import com.dalsemi.onewire.adapter.*;
 import com.dalsemi.onewire.utils.*;
 
 /**
- * Memory bank class for the DS2438.
- *
- *  @version    0.00, 30 Oct 2001
- *  @author     DS
- */
-class MemoryBankSBM
+  * Memory bank class for the DS28EA00.
+  *
+  *  @version 	0.00, 15 October 2006
+  *  @author 	
+  */
+class MemoryBankScratchTemp
    implements MemoryBank
 {
-
    //--------
    //--------Static Final Variables
    //--------
+
+   /**
+    * Read power supply command. This command is used to determine if external power is supplied.
+    */
+   public static final byte READ_POWER_SUPPLY_COMMAND = ( byte ) 0xB4;
 
    /**
     * Read scratchpad command
@@ -65,7 +72,6 @@ class MemoryBankSBM
     * Write scratchpad command
     */
    private static final byte WRITE_SCRATCHPAD_COMMAND = ( byte ) 0x4E;
-
    //--------
    //-------- Protected Variables for MemoryBank implementation
    //--------
@@ -143,6 +149,8 @@ class MemoryBankSBM
     */
    protected boolean doSetSpeed;
 
+
+
    //--------
    //-------- Constructor
    //--------
@@ -151,26 +159,27 @@ class MemoryBankSBM
     * Memory bank contstuctor.  Requires reference to the OneWireContainer
     * this memory bank resides on.
     */
-   public MemoryBankSBM (OneWireContainer ibutton)
+   public MemoryBankScratchTemp (OneWireContainer ibutton)
    {
       // keep reference to ibutton where memory bank is
       ib = ibutton;
 
-      // initialize attributes of this memory bank - DEFAULT: DS2438 Status byte
-      bankDescription      = "Status/Configuration";
+      // initialize attributes of this memory bank
+
+      bankDescription      = "Temperature";
       generalPurposeMemory = false;
       startPhysicalAddress = 0;
-      size                 = 1;
-      readWrite            = true;
-      readOnly             = false;
-      nonVolatile          = true;
+      size                 = 2;
+      readWrite            = false;
+      readOnly             = true;
+      nonVolatile          = false;
       powerDelivery        = true;
-      writeVerification    = true;
+      writeVerification    = false; // not needed here but required for MemoryBank implementation
 
       // create the ffblock (used for faster 0xFF fills)
-      ffBlock = new byte [20];
+      ffBlock = new byte [15];
 
-      for (int i = 0; i < 20; i++)
+      for (int i = 0; i < 15; i++)
          ffBlock [i] = ( byte ) 0xFF;
 
       // indicate speed has not been set
@@ -190,7 +199,6 @@ class MemoryBankSBM
    {
       return bankDescription;
    }
-
    /**
     * Query to see if the current memory bank is general purpose
     * user memory.  If it is NOT then it is Memory-Mapped and writing
@@ -202,6 +210,16 @@ class MemoryBankSBM
    public boolean isGeneralPurposeMemory ()
    {
       return generalPurposeMemory;
+   }
+
+   /**
+    * Query to get the memory bank size in bytes.
+    *
+    * @return  memory bank size in bytes.
+    */
+   public int getSize ()
+   {
+      return size;
    }
 
    /**
@@ -284,16 +302,6 @@ class MemoryBankSBM
    }
 
    /**
-    * Query to get the memory bank size in bytes.
-    *
-    * @return  memory bank size in bytes.
-    */
-   public int getSize ()
-   {
-      return size;
-   }
-
-   /**
     * Set the write verification for the 'write()' method.
     *
     * @param  doReadVerf   true (default) verify write in 'write'
@@ -305,8 +313,9 @@ class MemoryBankSBM
       writeVerification = doReadVerf;
    }
 
+
    //--------
-   //-------- MemoryBank I/O methods
+   //-------- I/O methods
    //--------
 
    /**
@@ -320,11 +329,7 @@ class MemoryBankSBM
     * then once to at least verify that the same thing is read consistantly.
     *
     * @param  startAddr     starting physical address
-    * @param  readContinue  if 'true' then device read is continued without
-    *                       re-selecting.  This can only be used if the new
-    *                       read() continious where the last one led off
-    *                       and it is inside a 'beginExclusive/endExclusive'
-    *                       block.
+    * @param  readContinue  ignored by method
     * @param  readBuf       byte array to place read data into
     * @param  offset        offset into readBuf to place data
     * @param  len           length in bytes to read
@@ -333,7 +338,7 @@ class MemoryBankSBM
     * @throws OneWireException
     */
    public void read (int startAddr, boolean readContinue, byte[] readBuf,
-                     int offset, int len)
+      int offset, int len)
       throws OneWireIOException, OneWireException
    {
       byte[] temp_buf;
@@ -349,32 +354,17 @@ class MemoryBankSBM
       // attempt to put device at max desired speed
       checkSpeed();
 
-      // translate the address into a page and offset
-      int page = (startAddr + startPhysicalAddress) / 8;
-      int page_offset = (startAddr + startPhysicalAddress) % 8;
+      // translate the address into a page_offset and offset
+      int page_offset = startAddr + startPhysicalAddress;
       int data_len = 8 - page_offset;
       if (data_len > len)
          data_len = len;
-      int page_cnt = 0;
-      int data_read = 0;
 
-      // loop while reading pages
-      while (data_read < len)
-      {
-         // read a page
-         temp_buf = readRawPage(page + page_cnt);
+      // read scratchpad
+      temp_buf = readScratchpad();
 
-         // copy contents to the readBuf
-         System.arraycopy(temp_buf, page_offset, readBuf, offset + data_read, data_len);
-
-         // increment counters
-         page_cnt++;
-         data_read += data_len;
-         page_offset = 0;
-         data_len = (len - data_read);
-         if (data_len > 8)
-            data_len = 8;
-      }
+      // copy contents to the readBuf
+      System.arraycopy(temp_buf, page_offset, readBuf, offset, data_len);
    }
 
    /**
@@ -392,7 +382,7 @@ class MemoryBankSBM
     *
     * @param  startAddr     starting address
     * @param  writeBuf      byte array containing data to write
-    * @param  offset        offset into writeBuf to get data
+    * @param  offset        offset into writeBuf to start writing data
     * @param  len           length in bytes to write
     *
     * @throws OneWireIOException
@@ -402,6 +392,12 @@ class MemoryBankSBM
       throws OneWireIOException, OneWireException
    {
       byte[] temp_buf;
+
+      // startAddr = starting address of the memory bank
+      // writeBuf = array of bytes or unknown size given to method
+      // offset = offset into writeBuf to start writing from
+      // len = how many bytes to write
+
 
       // return if nothing to do
       if (len == 0)
@@ -415,174 +411,300 @@ class MemoryBankSBM
       // attempt to put device at max desired speed
       checkSpeed();
 
-      // translate the address into a page and offset
-      int page = (startAddr + startPhysicalAddress) / 8;
-      int page_offset = (startAddr + startPhysicalAddress) % 8;
-      int data_len = 8 - page_offset;
-      if (data_len > len)
-         data_len = len;
-      int page_cnt = 0;
-      int data_written = 0;
-      byte[] page_buf = new byte[8];
+      // since writing is a bit odd in that the startPhysicalAddress 
+      // is off by 2 due to being able to read 9 bytes but only writing 3,
+      // let's correct...
 
-      // loop while writing pages
-      while (data_written < len)
-      {
-         // check if only writing part of page
-         // pre-fill write page buff with current page contents
-         if ((page_offset != 0) || (data_len != 8))
-         {
-            temp_buf = readRawPage(page + page_cnt);
-            System.arraycopy(temp_buf, 0, page_buf, 0, 8);
-         }
 
-         // fill in the data to write
-         System.arraycopy(writeBuf, offset + data_written, page_buf, page_offset, data_len);
+      // translate the address into a page offset
+      int page_offset = startAddr + startPhysicalAddress;
+      byte[] page_buf = new byte[3];
 
-         // write the page
-         writeRawPage(page + page_cnt, page_buf, 0);
+      // pre-fill buff with current page contents
+      temp_buf = readRecallScratchpad();
 
-         // increment counters
-         page_cnt++;
-         data_written += data_len;
-         page_offset = 0;
-         data_len = (len - data_written);
-         if (data_len > 8)
-            data_len = 8;
-      }
+      // we have temp_buf, so now write the data we want changed to it.
+      System.arraycopy(writeBuf, offset, temp_buf, page_offset, len);
+
+      // since only 3 bytes can be written to scratchpad (TH/TL/Config) then 
+      // prefill this array with the correct three bytes
+      System.arraycopy(temp_buf,2,page_buf,0,3);
+
+      // write the page
+      writeScratchpad(page_buf);
    }
 
    //--------
    //-------- Bank specific methods
    //--------
 
-
    /**
-    * Reads the specified 8 byte page and returns the data in an array.
+    * Reads the 8 byte scratchpad and returns the data in an array.
     *
-    * @param page the page number to read
+    * @param none
     *
-    * @return  eight byte array that make up the page
+    * @return  eight byte array that make up the scratchpad
     *
     * @throws OneWireIOException Error reading data
     * @throws OneWireException Could not find part
-    * @throws IllegalArgumentException Bad parameters passed
     */
-   protected byte[] readRawPage(int page)
+   protected byte[] readScratchpad()
       throws OneWireIOException, OneWireException
    {
-      byte[] buffer = new byte [11];
-      byte[] result = new byte [8];
+      byte[] send_block = new byte [10];
+      byte[] result_block = new byte [8];
       int    crc8;   // this device uses a crc 8
 
       if (ib.adapter.select(ib.address))
       {
          /* recall memory to the scratchpad */
-         buffer [0] = RECALL_MEMORY_COMMAND;
-         buffer [1] = ( byte ) page;
-
-         ib.adapter.dataBlock(buffer, 0, 2);
+         //ib.adapter.putByte(RECALL_MEMORY_COMMAND);
 
          /* perform the read scratchpad */
-         ib.adapter.select(ib.address);
+         //ib.adapter.select(ib.address);
 
-         buffer [0] = READ_SCRATCHPAD_COMMAND;
-         buffer [1] = ( byte ) page;
+         /* read scratchpad command */
+         send_block [0] = ( byte ) READ_SCRATCHPAD_COMMAND;
 
-         for (int i = 2; i < 11; i++)
-            buffer [i] = ( byte ) 0x0ff;
+         /* now add the read bytes for data bytes and crc8 */
+         for (int i = 1; i < 10; i++)
+            send_block [i] = ( byte ) 0xFF;
 
-         ib.adapter.dataBlock(buffer, 0, 11);
+         /* send the block */
+         ib.adapter.dataBlock(send_block, 0, send_block.length);
 
-         /* do the crc check */
-         crc8 = CRC8.compute(buffer, 2, 9);
+         /*
+            Now, send_block contains the 8-byte Scratchpad plus READ_SCRATCHPAD_COMMAND byte, and CRC8.
+            So, convert the block to a 8-byte array representing Scratchpad (get rid of first byte and CRC8)
+         */
 
-         if (crc8 != 0x0)
-            throw new OneWireIOException(
-               "Bad CRC during page read " + crc8);
+         // see if CRC8 is correct
+         crc8 = CRC8.compute(send_block, 1, 9);
+         if (crc8 != 0)
+            throw new OneWireIOException("Bad CRC during page read " + crc8);
 
          // copy the data into the result
-         System.arraycopy(buffer, 2, result, 0, 8);
+         System.arraycopy(send_block, 1, result_block, 0, 8);
+
+         return (result_block);
+      }
+
+      // device must not have been present
+      throw new OneWireIOException(
+         "Device not found during scratchpad read");
+   }
+
+   /**
+    * Reads the 8 byte scratchpad with Esquared recalled and returns the data in an array.
+    *
+    * @param none
+    *
+    * @return  eight byte array that make up the scratchpad
+    *
+    * @throws OneWireIOException Error reading data
+    * @throws OneWireException Could not find part
+    */
+   protected byte[] readRecallScratchpad()
+      throws OneWireIOException, OneWireException
+   {
+      byte[] recallData;
+      if (ib.adapter.select(ib.address))
+      {
+         // recall memory to the scratchpad
+         ib.adapter.putByte(RECALL_MEMORY_COMMAND);
+         // read scratchpad
+         recallData = readScratchpad();
+         return (recallData);
+      }
+
+      // device must not have been present
+      throw new OneWireIOException(
+         "Device not found during E-squared recall scratchpad read");
+   }
+
+
+   /**
+    * Writes to the Scratchpad of the DS28EA00 and similar devices.
+    *
+    * @param data data to be written to the scratchpad.  First
+    *             byte of data must be the temperature High Trip Point, the
+    *             second byte must be the temperature Low Trip Point, and
+    *             the third must be the Resolution (configuration register).
+    *
+    * @throws OneWireIOException on a 1-Wire communication error such as
+    *         reading an incorrect CRC from this <code>OneWireContainer42</code>.
+    *         This could be caused by a physical interruption in the 1-Wire
+    *         Network due to shorts or a newly arriving 1-Wire device issuing a
+    *         'presence pulse'.
+    * @throws OneWireException on a communication or setup error with the 1-Wire
+    *         adapter
+    * @throws IllegalArgumentException when data is of invalid length
+    */
+   public void writeScratchpad (byte[] data)
+      throws OneWireIOException, OneWireException
+   {
+      /*
+      OneWireContainer42 ib42;
+
+      ib42 = (OneWireContainer42) ib;
+      ib42.writeScratchpad(data);
+      */
+      
+      // setup buffer to write to scratchpad
+      byte[] writeBuffer = new byte [4];
+      //byte[] writeBuffer = new byte [6];
+      byte[] readBuffer;
+      //boolean vddSupplied = false;
+
+      /*
+      writeBuffer [0] = 0x4E;
+      writeBuffer [1] = 0x00;
+      writeBuffer [2] = 0x00;
+      writeBuffer [3] = data [0];
+      writeBuffer [4] = data [1];
+      writeBuffer [5] = data [2];
+*/
+      writeBuffer [0] = 0x4E;
+      writeBuffer [1] = data [0];
+      writeBuffer [2] = data [1];
+      writeBuffer [3] = data [2];
+
+      // send command block to device
+      if (ib.adapter.select(ib.getAddressAsString()))
+      {
+         ib.adapter.dataBlock(writeBuffer, 0, writeBuffer.length);
       }
       else
-         throw new OneWireIOException("Device not found during read page.");
+      {
+
+         // device must not have been present
+         throw new OneWireIOException(
+            "Device not found on 1-Wire Network");
+      }
+
+
+      // double check by reading scratchpad without recallEsquared
+      readBuffer = readScratchpad();
+
+      if ((readBuffer [2] != data [0]) || (readBuffer [3] != data [1])
+         || (readBuffer [4] != data [2]))
+      {
+
+         // writing to scratchpad failed
+         throw new OneWireIOException(
+            "Error writing to scratchpad " + data[0] + " " + readBuffer[2] + " " + data[1] + " " + readBuffer[3] + " " + data[2] + " " + readBuffer[4] + " ");
+      }
+
+
+      // second, let's copy the scratchpad.
+      if (ib.adapter.select(ib.getAddressAsString()))
+      {
+
+         // apply the power delivery
+         ib.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
+         ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+
+         // send the copy scratchpad command
+         ib.adapter.putByte(COPY_SCRATCHPAD_COMMAND);
+
+         // sleep for 10 milliseconds to allow copy to take place.
+         try
+         {
+            Thread.sleep(10);
+         }
+         catch (InterruptedException e){}
+         ;
+
+         // Turn power back to normal.
+         ib.adapter.setPowerNormal();
+      }
+
+/*
+
+      // now copy scratchpad
+      // second, let's copy the scratchpad.
+      if (ib.adapter.select(ib.getAddressAsString()))
+      {
+         // apply the power delivery
+         vddSupplied = isExternalPowerSupplied();
+         if (!vddSupplied)
+         {
+            ib.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
+            ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+         }
+
+         // send the convert temperature command
+         ib.adapter.putByte(COPY_SCRATCHPAD_COMMAND);
+
+         // sleep for 10 milliseconds to allow copy to take place.
+         try
+         {
+            Thread.sleep(10);
+         }
+         catch (InterruptedException e){}
+         ;
+
+         // Turn power back to normal.
+         if (!vddSupplied)
+         {
+            ib.adapter.setPowerNormal();
+         }
+
+      }
+   */
+      else
+      {
+         // device must not have been present
+         throw new OneWireIOException(
+            "Device not found on 1-Wire Network");
+      }
+      return;
+      
+   }
+
+
+   /**
+    * Reads the way power is supplied to the DS28EA00.
+    *
+    * @return <code>true</code> for external power, <BR>
+    *         <code>false</code> for parasite power
+    *
+    * @throws OneWireIOException on a 1-Wire communication error such as
+    *         reading an incorrect CRC from this <code>OneWireContainer42</code>.
+    *         This could be caused by a physical interruption in the 1-Wire
+    *         Network due to shorts or a newly arriving 1-Wire device issuing a
+    *         'presence pulse'.
+    * @throws OneWireException on a communication or setup error with the 1-Wire
+    *         adapter
+    */
+   public boolean isExternalPowerSupplied ()
+      throws OneWireIOException, OneWireException
+   {
+      int     intresult = 0;
+      boolean result    = false;
+
+      // select the device
+      if (ib.adapter.select(ib.getAddress()))
+      {
+         // send the "Read Power Supply" memory command
+         ib.adapter.putByte(READ_POWER_SUPPLY_COMMAND);
+
+         // read results
+         intresult = ib.adapter.getByte();
+      }
+      else
+      {
+
+         // device must not have been present
+         throw new OneWireIOException(
+            "Device not found on 1-Wire Network");
+      }
+      if (intresult != 0x00)
+         result = true;   // reads 0xFF for true and 0x00 for false
 
       return result;
    }
 
-   /**
-    * Writes a page of memory to this device. Pages 3-6 are always
-    * available for user storage and page 7 is available if the CA bit is set
-    * to 0 (false) with <CODE>setFlag()</CODE>.
-    *
-    * @param page    the page number
-    * @param source  data to be written to page
-    * @param offset  offset with page to begin writting
-    *
-    * @returns 'true' if the write was successfull
-    *
-    * @throws OneWireIOException Error reading data
-    * @throws OneWireException Could not find part
-    * @throws IllegalArgumentException Bad parameters passed
-    */
-   protected void writeRawPage (int page, byte[] source, int offset)
-      throws OneWireIOException, OneWireException
-   {
-      byte[] buffer = new byte [12];
-      int crc8;
-
-      if (ib.adapter.select(ib.address))
-      {
-         // write the page to the scratchpad first
-         buffer [0] = WRITE_SCRATCHPAD_COMMAND;
-         buffer [1] = ( byte ) page;
-
-         System.arraycopy(source, offset, buffer, 2, 8);
-         ib.adapter.dataBlock(buffer, 0, 10);
-
-         // read back the scrathpad
-         if (ib.adapter.select(ib.address))
-         {
-            // write the page to the scratchpad first
-            buffer [0] = READ_SCRATCHPAD_COMMAND;
-            buffer [1] = ( byte ) page;
-
-            System.arraycopy(ffBlock, 0, buffer, 2, 9);
-            ib.adapter.dataBlock(buffer, 0, 11);
-
-            /* do the crc check */
-            crc8 = CRC8.compute(buffer, 2, 9);
-
-            if (crc8 != 0x0)
-               throw new OneWireIOException(
-                  "Bad CRC during scratchpad read " + crc8);
-
-            // now copy that part of the scratchpad to memory
-            if (ib.adapter.select(ib.address))
-            {
-               buffer [0] = COPY_SCRATCHPAD_COMMAND;
-               buffer [1] = ( byte ) page;
-
-               ib.adapter.dataBlock(buffer, 0, 2);
-
-               // give it some time to write
-               try
-               {
-                  Thread.sleep(12);
-               }
-               catch (InterruptedException e){}
-
-               // check the result
-               if ((byte)ib.adapter.getByte() != (byte)0xFF)
-                  throw new OneWireIOException("Copy scratchpad verification not found.");
-
-               return;
-            }
-         }
-      }
-
-      throw new OneWireIOException("Device not found during write page.");
-   }
 
    //--------
    //-------- checkSpeed methods
@@ -625,4 +747,5 @@ class MemoryBankSBM
          doSetSpeed = true;
       }
    }
+
 }

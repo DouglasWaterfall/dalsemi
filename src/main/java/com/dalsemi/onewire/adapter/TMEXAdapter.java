@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999 - 2007 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -37,7 +37,7 @@ import java.io.File;
 
 
 /**
- * The DSPortAdapter class for all TMEX native adapters (Win32).
+ * The DSPortAdapter class for all TMEX native adapters.
  *
  * Instances of valid DSPortAdapter's are retrieved from methods in
  * {@link com.dalsemi.onewire.OneWireAccessProvider OneWireAccessProvider}.
@@ -198,11 +198,15 @@ public class TMEXAdapter
    public TMEXAdapter ()
       throws ClassNotFoundException
    {
-
+      String nativeDLLName = "IBTMJAVA.dll";
+      if (System.getProperty("os.arch").indexOf("64") != -1)
+      {
+         nativeDLLName = "ibtmjava64.dll";
+      }
       // check if native driver got loaded
       if (!driverLoaded)
          throw new ClassNotFoundException(
-            "native driver 'ibtmjava.dll' not loaded");
+            "native driver '" + nativeDLLName + "' not loaded");
 
       // set default port type
       portType = getDefaultTypeNumber();
@@ -226,10 +230,16 @@ public class TMEXAdapter
       // set default port type
       portType = newPortType;
 
+      String nativeDLLName = "IBTMJAVA.dll";
+      if (System.getProperty("os.arch").indexOf("64") != -1)
+      {
+         nativeDLLName = "ibtmjava64.dll";
+      }
+
       // check if native driver got loaded
       if (!driverLoaded)
          throw new ClassNotFoundException(
-            "native driver 'ibtmjava.dll' not loaded");
+            "native driver '" + nativeDLLName + "' not loaded");
 
       // attempt to set the portType, will throw exception if does not exist
       if (!setPortType_Native(portType))
@@ -273,7 +283,7 @@ public class TMEXAdapter
     */
    public String getClassVersion ()
    {
-      return new String("0.01, native: " + getVersion_Native());
+      return new String("0.02, native: " + getVersion_Native());
    }
 
    //--------
@@ -1204,15 +1214,24 @@ public class TMEXAdapter
    /**
     * Static method called before instance is created.  Attempt
     * verify native driver's installed and to load the
-    * driver (IBTMJAVA.DLL).
+    * native TMEX interface code: ibtmjava.dll for x86 and ibtmjava64.dll for x64.
     */
    static
    {
       driverLoaded = false;
+      String nativeTMEXDLLName = "IBFS32.DLL";
+      String nativeDLLName = "ibtmjava.dll";
+      String loadLibraryString = "ibtmjava";
+      if (System.getProperty("os.arch").indexOf("64") != -1)
+      {
+         nativeTMEXDLLName = "IBFS64.DLL";
+         nativeDLLName = "ibtmjava64.dll";
+         loadLibraryString = "ibtmjava64";
+      }
+
 
       // check if on OS that can have native TMEX drivers
-      if ((System.getProperty("os.arch").indexOf("86") != -1)
-              && (System.getProperty("os.name").indexOf("Windows") != -1))
+      if (System.getProperty("os.name").indexOf("Windows") != -1)
       {
 
          // check if TMEX native drivers installed
@@ -1222,6 +1241,7 @@ public class TMEXAdapter
          File    file;
          boolean tmex_loaded = false;
 
+         System.out.println(search_path);
          // check for a path to search
          if (search_path != null)
          {
@@ -1234,8 +1254,8 @@ public class TMEXAdapter
                {
                   path = search_path.substring(last_index, index);
 
-                  // look to see if IBFS32.DLL is in this path
-                  file = new File(path + File.separator + "IBFS32.DLL");
+                  // look to see if main TMEX dll is in this path
+                  file = new File(path + File.separator + nativeTMEXDLLName);
 
                   if (file.exists())
                   {
@@ -1257,8 +1277,7 @@ public class TMEXAdapter
          {
             try
             {
-               System.loadLibrary("ibtmjava");
-
+               System.loadLibrary(loadLibraryString);
                driverLoaded = true;
             }
             catch (UnsatisfiedLinkError e)
@@ -1266,18 +1285,18 @@ public class TMEXAdapter
                if (search_path != null)
                {
                   System.err.println(
-                     "Could not load Java to TMEX-native bridge driver: ibtmjava.dll");
+                     "Could not load Java to TMEX-native bridge driver: " + nativeDLLName);
                }
                else
                {
                   System.err.println(
-                     "Native drivers not found, download iButton-TMEX RTE Win32 from www.ibutton.com");
+                     "Native drivers not found, download 1-Wire Drivers from www.ibutton.com");
                }
             }
          }
          else
             System.err.println(
-               "Native drivers not found, download iButton-TMEX RTE Win32 from www.ibutton.com");
+               "Native drivers not found, download 1-Wire Drivers from www.ibutton.com");
       }
    }
 }

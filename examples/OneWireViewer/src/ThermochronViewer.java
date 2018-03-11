@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2001 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2001 - 2009 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -44,7 +44,7 @@ import com.dalsemi.onewire.utils.Convert;
  * log, the histogram, and the alarm log.
  *
  * @author SH
- * @version 1.00
+ * @version 1.01
  */
 public class ThermochronViewer extends Viewer
    implements Pollable, Runnable
@@ -114,7 +114,7 @@ public class ThermochronViewer extends Viewer
 
       // set the version
       majorVersionNumber = 1;
-      minorVersionNumber = 6;
+      minorVersionNumber = 7; 
 
       nf.setMaximumFractionDigits(3);
       nf.setGroupingUsed(false);
@@ -635,7 +635,7 @@ public class ThermochronViewer extends Viewer
             // synchronize clock to current time
             if(task_syncClock)
             {
-               task_container.setClock(new java.util.Date().getTime(), state);
+               task_container.setClock(new Date().getTime(), state);
             }
 
             // mission start delay
@@ -719,6 +719,9 @@ public class ThermochronViewer extends Viewer
    {
       public void executeTask()
       {
+         String newline = System.getProperty("line.separator"); 
+         String missionResults = ""; 
+
          DSPortAdapter l_adapter = null;
          OneWireContainer21 l_container = null;
          synchronized(syncObj)
@@ -733,6 +736,11 @@ public class ThermochronViewer extends Viewer
          try
          {
             l_adapter.beginExclusive(true);
+
+            missionResults += "1-Wire/iButton Part Number: " + l_container.getName() + newline; 
+            missionResults += "1-Wire/iButton Registration Number: " + l_container.getAddressAsString() + newline; 
+
+
             byte[] state = l_container.readDevice();
             boolean  missionActive =
                l_container.getFlag(OneWireContainer21.STATUS_REGISTER,
@@ -741,7 +749,7 @@ public class ThermochronViewer extends Viewer
             lblFeature[IS_ACTIVE].setText(" " + missionActive);
             int sample_rate = l_container.getSampleRate(state);
             int sample_count = l_container.getMissionSamplesCounter(state);
-            java.util.Date mission_timestamp
+            Date mission_timestamp
             = l_container.getMissionTimeStamp(state).getTime();
             if(sample_count>0)
             {
@@ -773,7 +781,7 @@ public class ThermochronViewer extends Viewer
             else
             {
                lblFeature[NEXT_CLOCK_ALARM].setText(" " +
-                  new java.util.Date(l_container.getClockAlarm(state)));
+                  new Date(l_container.getClockAlarm(state)));
             }
 
             if(bFahrenheit)
@@ -788,8 +796,8 @@ public class ThermochronViewer extends Viewer
                   Convert.toFahrenheit(
                      l_container.getTemperatureAlarm(TemperatureContainer.ALARM_LOW,
                                                      state)));
-               lblFeature[HIGH_ALARM].setText(" " + highAlarmText + " °F");
-               lblFeature[LOW_ALARM].setText(" " + lowAlarmText + " °F");
+               lblFeature[HIGH_ALARM].setText(" " + highAlarmText + " ï¿½F");
+               lblFeature[LOW_ALARM].setText(" " + lowAlarmText + " ï¿½F");
             }
             else
             {
@@ -802,8 +810,8 @@ public class ThermochronViewer extends Viewer
                   l_container.getTemperatureAlarm(TemperatureContainer.ALARM_LOW,
                                                   state));
                // read the high and low temperature alarm settings
-               lblFeature[HIGH_ALARM].setText(" " + highAlarmText + " °C");
-               lblFeature[LOW_ALARM].setText(" " + lowAlarmText + " °C");
+               lblFeature[HIGH_ALARM].setText(" " + highAlarmText + " ï¿½C");
+               lblFeature[LOW_ALARM].setText(" " + lowAlarmText + " ï¿½C");
             }
 
             String alarms = null;
@@ -831,7 +839,7 @@ public class ThermochronViewer extends Viewer
             if(alarms!=null)
                lblFeature[ALARMS].setText(alarms);
             else
-               lblFeature[ALARMS].setText(" None fired");
+               lblFeature[ALARMS].setText(" None fired"); 
 
             Calendar cal = Calendar.getInstance();
             boolean isSampling = false;
@@ -861,6 +869,23 @@ public class ThermochronViewer extends Viewer
             long time = mission_timestamp.getTime()
                         + l_container.getFirstLogOffset(state);
             byte[] log = l_container.getTemperatureLog(state);
+
+            missionResults += strHeader[IS_ACTIVE] + lblFeature[IS_ACTIVE].getText() + newline;
+            missionResults += strHeader[MISSION_START] + lblFeature[MISSION_START].getText() + newline;
+            missionResults += strHeader[SAMPLE_RATE] + lblFeature[SAMPLE_RATE].getText() + newline;
+            missionResults += strHeader[MISSION_SAMPLES] + lblFeature[MISSION_SAMPLES].getText() + newline;
+            missionResults += strHeader[TOTAL_SAMPLES] + lblFeature[TOTAL_SAMPLES].getText() + newline;
+            missionResults += strHeader[ROLL_OVER] + lblFeature[ROLL_OVER].getText() + newline;
+            missionResults += strHeader[ROLLED_OVER] + lblFeature[ROLLED_OVER].getText() + newline;
+            missionResults += strHeader[ALARMS] + lblFeature[ALARMS].getText() + newline;
+            missionResults += strHeader[NEXT_CLOCK_ALARM] + lblFeature[NEXT_CLOCK_ALARM].getText() + newline;
+            missionResults += strHeader[HIGH_ALARM] + lblFeature[HIGH_ALARM].getText() + newline;
+            missionResults += strHeader[LOW_ALARM] + lblFeature[LOW_ALARM].getText() + newline + newline;
+            missionResults += "Date/Time,Unit,Value" + newline;
+
+            temperaturePlot.setHeaderString(missionResults);
+            
+
             temperaturePlot.resetPlot();
             // plot the temperature log
             for(int i=0; i<log.length; i++)
@@ -944,14 +969,14 @@ public class ThermochronViewer extends Viewer
                   histogramText.append(" to ");
                   histogramText.append(nf.format(Convert.toFahrenheit(start +
                                                  (histBinWidth - resolution))));
-                  histogramText.append(" °F");
+                  histogramText.append(" ï¿½F");
                }
                else
                {
                   histogramText.append(nf.format(start));
                   histogramText.append(" to ");
                   histogramText.append(nf.format(start + (histBinWidth - resolution)));
-                  histogramText.append(" °C");
+                  histogramText.append(" ï¿½C");
                }
                histogramText.append("\n");
 
@@ -1029,9 +1054,9 @@ public class ThermochronViewer extends Viewer
             chkRollover.setHorizontalAlignment(SwingConstants.CENTER);
             // low temperature alarm input
             if(bFahrenheit)
-               lblTemp = new JLabel("Temperature Low Alarm? (°F)");
+               lblTemp = new JLabel("Temperature Low Alarm? (ï¿½F)");
             else
-               lblTemp = new JLabel("Temperature Low Alarm? (°C)");
+               lblTemp = new JLabel("Temperature Low Alarm? (ï¿½C)");
             lblTemp.setFont(fontBold);
             lblTemp.setForeground(Color.black);
             tempBox1.add(lblTemp);
@@ -1041,9 +1066,9 @@ public class ThermochronViewer extends Viewer
             tempBox1.add(txtLowAlarm);
             // high temperature alarm input
             if(bFahrenheit)
-               lblTemp = new JLabel("Temperature High Alarm? (°F)");
+               lblTemp = new JLabel("Temperature High Alarm? (ï¿½F)");
             else
-               lblTemp = new JLabel("Temperature High Alarm? (°C)");
+               lblTemp = new JLabel("Temperature High Alarm? (ï¿½C)");
             lblTemp.setFont(fontBold);
             lblTemp.setForeground(Color.black);
             tempBox2.add(lblTemp);

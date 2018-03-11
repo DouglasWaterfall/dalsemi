@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2001 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -52,9 +52,11 @@ public class HumidityViewer extends Viewer
 {
    /* string constants */
    private static final String strTitle = "HumidityViewer";
-   private static final String strTab = "Humidity";
-   private static final String strTip = "Shows relative humidity";
+   private static final String strTab = "Real-Time Humidity";
+   private static final String strTip = "Shows relative humidity (uncorrected for temperature)";
    private static final String naString = "N/A";
+   private static final String newline = System.getProperty("line.separator");
+
 
    /* container variables */
    private HumidityContainer container  = null;
@@ -68,7 +70,8 @@ public class HumidityViewer extends Viewer
 
    /* feature labels */
    private JLabel[] lblFeature = null, lblFeatureHdr = null;
-   private String[] strHeader = { "Humidity " };
+   private String[] strHeader = { "Humidity (uncorrected for temperature)" };
+
    /* indices for feature labels */
    private static final int TOTAL_FEATURES = 1;
    private static final int HUMD=0;
@@ -80,10 +83,14 @@ public class HumidityViewer extends Viewer
       java.text.DateFormat.getDateTimeInstance(
          java.text.DateFormat.SHORT, java.text.DateFormat.MEDIUM);
 
+   /* misc strings */
+   private String missionResults = "";
+
    /* Single-instance Viewer Tasks */
    private final ViewerTask pollHumidityTask = new PollHumidityTask();
    private final ViewerTask pollResolutionTask = new PollResolutionTask();
    private final ViewerTask setupViewerTask = new SetupViewerTask();
+
 
    /**
     * Constructs a new HumidityViewer.
@@ -94,7 +101,7 @@ public class HumidityViewer extends Viewer
 
       // set the version
       majorVersionNumber = 1;
-      minorVersionNumber = 3;
+      minorVersionNumber = 6;
 
       nf.setMaximumFractionDigits(3);
       nf.setGroupingUsed(false);
@@ -438,6 +445,7 @@ public class HumidityViewer extends Viewer
    protected class PollHumidityTask extends ViewerTask
    {
       double lastHumidityRead = Double.NaN;
+
       public void executeTask()
       {
          DSPortAdapter l_adapter = null;
@@ -454,8 +462,10 @@ public class HumidityViewer extends Viewer
          try
          {
             l_adapter.beginExclusive(true);
+
             if(pathToDevice!=null)
                pathToDevice.open();
+
             byte[] state = l_container.readDevice();
             l_container.doHumidityConvert(state);
             double read = l_container.getHumidity(state);
@@ -468,6 +478,7 @@ public class HumidityViewer extends Viewer
             plot.addPoint(read, 
                df.format(new Date()) + ",%RH");
             setStatus(VERBOSE, "Done polling.");
+
          }
          catch(Exception e)
          {
@@ -605,6 +616,14 @@ public class HumidityViewer extends Viewer
             l_adapter = adapter;
             l_container = container;
          }
+
+         // create a "header" string that adds part number, registration number, and column headers for exporting data to spreadsheet
+         missionResults += "1-Wire/iButton Part Number: " + ((OneWireContainer)l_container).getName() + newline;
+         missionResults += "1-Wire/iButton Registration Number: " + ((OneWireContainer)l_container).getAddressAsString() + newline + newline;
+         missionResults += "Date/Time,Unit,Value" + newline;
+
+         plot.setHeaderString(missionResults); // send the header string to the plot (to be exported to spreadsheet)
+         //((OneWireContainer41)l_container).setTemperatureCompensationUsage(true); // Turn temp compensation on?
 
          pausePoll();
          setStatus(VERBOSE, "Setting up viewer");

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2001 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2001 - 2011 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -45,7 +45,7 @@ import com.dalsemi.onewire.container.OneWireContainer41;
  * log, the histogram, and the alarm log.
  *
  * @author SH
- * @version 1.00
+ * @version 2.00
  */
 public class MissionViewer extends Viewer
    implements Pollable, Runnable
@@ -57,19 +57,19 @@ public class MissionViewer extends Viewer
    private static final String naString = "N/A";
 
    public static final String MISSION_VIEWER_FAHRENHEIT = "mission.viewer.displayFahrenheit";
+   public static final String MISSION_VIEWER_TCOMPENSATION = "mission.viewer.rhTemperatureCompensation";
+   public static final String MISSION_VIEWER_LIMITSATDRIFT = "mission.viewer.rhLimitSaturationDrift";
+	
 
    /* container variables */
    private MissionContainer container = null;
    private TaggedDevice taggedDevice = null;
 
    private JButton[] cmdButton;
-   private static final int TOTAL_BUTTONS = 6;
+   private static final int TOTAL_BUTTONS = 3;
    private static final int REFRESH_BTN = 0;
    private static final int START_BTN = 1;
    private static final int STOP_BTN = 2;
-   private static final int SFT_PSW_BTN = 3;
-   private static final int DEV_PSW_BTN = 4;
-   private static final int EN_PSW_BTN = 5;
 
    /* visual components */
    public Plot temperaturePlot = null, dataPlot = null;
@@ -80,6 +80,10 @@ public class MissionViewer extends Viewer
    //private JTextArea alarmHistory = null;
    //private JTextArea histogram = null;
 
+	private JCheckBox rhTempCompCheck = null; 
+	private JCheckBox rhLimitSatDriftCheck = null;
+	
+	
    /* feature labels */
    private JLabel[] lblFeature = null, lblFeatureHdr = null;
    private String[] strHeader = {
@@ -92,6 +96,7 @@ public class MissionViewer extends Viewer
 
    };
    /* indices for feature labels */
+
    private static final int TOTAL_FEATURES = 16;
    private static final int IS_ACTIVE = 0;
    private static final int MISSION_SUTA = 1;
@@ -110,8 +115,11 @@ public class MissionViewer extends Viewer
    private static final int DATA_HIGH_ALARM = 14;
    private static final int DATA_LOW_ALARM = 15;
 
+
    private volatile boolean pausePoll = false, pollRunning = false;
    private boolean bFahrenheit = false;
+	private boolean bTCompensation = false;
+	private boolean bLimitSatDrift = false;
 
    private static final java.text.NumberFormat nf =
       new java.text.DecimalFormat();
@@ -133,10 +141,15 @@ public class MissionViewer extends Viewer
 
       bFahrenheit = ViewerProperties.getPropertyBoolean(
          MISSION_VIEWER_FAHRENHEIT, false);
-
+      bTCompensation = ViewerProperties.getPropertyBoolean(
+         MISSION_VIEWER_TCOMPENSATION, false);
+      bLimitSatDrift = ViewerProperties.getPropertyBoolean(
+         MISSION_VIEWER_LIMITSATDRIFT, false);
+			
+			
       // set the version
-      majorVersionNumber = 1;
-      minorVersionNumber = 7;
+      majorVersionNumber = 2;
+      minorVersionNumber = 0;	  
 
       nf.setMaximumFractionDigits(3);
       nf.setGroupingUsed(false);
@@ -214,12 +227,16 @@ public class MissionViewer extends Viewer
 
       cmdButton = new JButton[TOTAL_BUTTONS];
       // Refresh Panel for Refresh Button.
-      JPanel commandPanel = new JPanel(new GridLayout(3,1,3,3));
+		JPanel commandPanel = new JPanel();
+      commandPanel.setLayout(new GridBagLayout());		
+      GridBagConstraints c = new GridBagConstraints();	
+		
       JScrollPane commandScroll = new JScrollPane(commandPanel);
-      commandPanel.setBorder(BorderFactory.createTitledBorder(
-         BorderFactory.createEtchedBorder(), "Command"));
          JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-         buttonPanel.setBackground(Color.lightGray);
+         buttonPanel.setBorder(BorderFactory.createTitledBorder(
+         BorderFactory.createEtchedBorder(), "Command Buttons"));
+			
+
             cmdButton[REFRESH_BTN] = new JButton("Refresh Mission Results");
             cmdButton[REFRESH_BTN].addActionListener(new ActionListener()
                {
@@ -371,162 +388,21 @@ public class MissionViewer extends Viewer
          buttonPanel.add(cmdButton[START_BTN]);
          buttonPanel.add(cmdButton[STOP_BTN]);
          //buttonPanel.add(rangeButton);
-         JPanel passwordPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-         passwordPanel.setBackground(Color.lightGray);
-            cmdButton[SFT_PSW_BTN] = new JButton("Set Container Password");
-            cmdButton[SFT_PSW_BTN].addActionListener(new ActionListener()
-               {
-                  public void actionPerformed(ActionEvent ae)
-                  {
-                     byte[] readPassword = null, writePassword = null;
-                     String strReadPassword
-                        = JOptionPane.showInputDialog(MissionViewer.this,
-                                                      "Read Password");
-                     if(strReadPassword!=null && strReadPassword.length()>0)
-                     {
-                        try
-                        {
-                           readPassword = Convert.toByteArray(strReadPassword);
-                        }
-                        catch(com.dalsemi.onewire.utils.Convert.ConvertException ce)
-                        {
-                           setStatus(ERRMSG, "Error during hex string conversion: " + ce);
-                        }
-                        if(readPassword == null || readPassword.length!=8)
-                        {
-                           JOptionPane.showMessageDialog(MissionViewer.this,
-                                                         "Bad password string, aborting.");
-                           return;
-                        }
-                     }
-                     String strWritePassword
-                        = JOptionPane.showInputDialog(MissionViewer.this,
-                                                      "Read/Write Password");
-                     if(strWritePassword!=null && strWritePassword.length()>0)
-                     {
-                        try
-                        {
-                           writePassword = Convert.toByteArray(strWritePassword);
-                        }
-                        catch(com.dalsemi.onewire.utils.Convert.ConvertException ce)
-                        {
-                           setStatus(ERRMSG, "Error during hex string conversion: " + ce);
-                        }
-                        if(writePassword.length!=8)
-                        {
-                           JOptionPane.showMessageDialog(MissionViewer.this,
-                                                         "Bad password string, aborting.");
-                           return;
-                        }
-                     }
-                     synchronized(syncObj)
-                     {
-                        OneWireContainer41 owc41 = (OneWireContainer41)container;
-                        if(owc41==null)
-                           return;
-                        try
-                        {
-                           if(readPassword!=null)
-                              owc41.setContainerReadOnlyPassword(readPassword, 0);
-                           if(writePassword!=null)
-                              owc41.setContainerReadWritePassword(writePassword, 0);
-                        }
-                        catch(Exception e)
-                        {;}
-                     }
-                  }
-               }
-            );
-            cmdButton[DEV_PSW_BTN] = new JButton("Set Device Password");
-            cmdButton[DEV_PSW_BTN].addActionListener(new ActionListener()
-               {
-                  public void actionPerformed(ActionEvent ae)
-                  {
-                     byte[] readPassword = null, writePassword = null;
-                     String strReadPassword
-                        = JOptionPane.showInputDialog(MissionViewer.this,
-                                                      "Read Password");
-                     if(strReadPassword!=null && strReadPassword.length()>0)
-                     {
-                        try
-                        {
-                           readPassword = Convert.toByteArray(strReadPassword);
-                        }
-                        catch(com.dalsemi.onewire.utils.Convert.ConvertException ce)
-                        {
-                           setStatus(ERRMSG, "Error during hex string conversion: " + ce);
-                        }
-                        if(readPassword.length!=8)
-                        {
-                           JOptionPane.showMessageDialog(MissionViewer.this,
-                                                         "Bad password string, aborting.");
-                           return;
-                        }
-                     }
-                     String strWritePassword
-                        = JOptionPane.showInputDialog(MissionViewer.this,
-                                                      "Read/Write Password");
-                     if(strWritePassword!=null && strWritePassword.length()>0)
-                     {
-                        try
-                        {
-                           writePassword = Convert.toByteArray(strWritePassword);
-                        }
-                        catch(com.dalsemi.onewire.utils.Convert.ConvertException ce)
-                        {
-                           setStatus(ERRMSG, "Error during hex string conversion: " + ce);
-                        }
-                        if(writePassword.length!=8)
-                        {
-                           JOptionPane.showMessageDialog(MissionViewer.this,
-                                                         "Bad password string, aborting.");
-                           return;
-                        }
-                     }
-                     synchronized(syncObj)
-                     {
-                        for(int btn=0; btn<TOTAL_BUTTONS; btn++)
-                           cmdButton[btn].setEnabled(false);
-                        SetDevicePasswordTask sdpt
-                           = new SetDevicePasswordTask(
-                              adapter, (OneWireContainer41)container,
-                              readPassword, 0, writePassword, 0);
-                        enqueueRunTask(sdpt);
-                     }
-                  }
-               }
-            );
-            cmdButton[EN_PSW_BTN] = new JButton("Set Password Enable");
-            cmdButton[EN_PSW_BTN].addActionListener(new ActionListener()
-               {
-                  public void actionPerformed(ActionEvent ae)
-                  {
-                     int i = JOptionPane.showConfirmDialog(MissionViewer.this,
-                         "Click 'Yes' to Enable Passwords, 'No' to Disable Passwords");
-                     if(i==JOptionPane.YES_OPTION || i==JOptionPane.NO_OPTION)
-                     {
-                        synchronized(syncObj)
-                        {
-                           for(int btn=0; btn<TOTAL_BUTTONS; btn++)
-                              cmdButton[btn].setEnabled(false);
-                           SetPasswordEnableTask spet
-                              = new SetPasswordEnableTask(
-                                 adapter, (OneWireContainer41)container,
-                                 i==JOptionPane.YES_OPTION);
-                           enqueueRunTask(spet);
-                        }
-                     }
-                  }
-               }
-            );
-         passwordPanel.add(cmdButton[SFT_PSW_BTN]);
-         passwordPanel.add(cmdButton[DEV_PSW_BTN]);
-         passwordPanel.add(cmdButton[EN_PSW_BTN]);
-         JPanel checkboxPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-         checkboxPanel.setBackground(Color.lightGray);
+
+
+ 			// flow layout master panel to hold 2 other panels -- temp and humidity
+         JPanel graphSettingsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+			graphSettingsPanel.setBorder(BorderFactory.createTitledBorder(			
+			BorderFactory.createEtchedBorder(), "Graph Settings")); 
+			JPanel tGraphSettingsPanel = new JPanel(new GridLayout(2, 1, 3, 3));			
+			tGraphSettingsPanel.setBorder(BorderFactory.createTitledBorder(
+         BorderFactory.createEtchedBorder(), "Temperature"));
+			JPanel hGraphSettingsPanel = new JPanel(new GridLayout(2, 1, 3, 3));			
+			hGraphSettingsPanel.setBorder(BorderFactory.createTitledBorder(
+         BorderFactory.createEtchedBorder(), "Humidity"));
+
             ButtonGroup group = new ButtonGroup();
             JCheckBox fahCheck = new JCheckBox("Fahrenheit", bFahrenheit);
-            fahCheck.setBackground(Color.lightGray);
             fahCheck.setFont(fontPlain);
             group.add(fahCheck);
             fahCheck.addActionListener(new ActionListener()
@@ -544,7 +420,6 @@ public class MissionViewer extends Viewer
                }
             );
             JCheckBox celCheck = new JCheckBox("Celsius", !bFahrenheit);
-            celCheck.setBackground(Color.lightGray);
             celCheck.setFont(fontPlain);
             group.add(celCheck);
             celCheck.addActionListener(new ActionListener()
@@ -561,17 +436,70 @@ public class MissionViewer extends Viewer
                   }
                }
             );
-         checkboxPanel.add(fahCheck);
-         checkboxPanel.add(celCheck);
-      commandPanel.add(buttonPanel);
-      commandPanel.add(passwordPanel);
-      commandPanel.add(checkboxPanel);
+            rhTempCompCheck = new JCheckBox("%RH Temperature Compensation", bTCompensation);
+            rhTempCompCheck.setFont(fontPlain);
+            rhTempCompCheck.addActionListener(new ActionListener()
+               {
+                  public void actionPerformed(ActionEvent ae)
+                  {
+                     if(container!=null)
+                     {
+                        bTCompensation = !bTCompensation;
+                        ViewerProperties.setPropertyBoolean(
+                           MISSION_VIEWER_TCOMPENSATION, bTCompensation);
+                        enqueueRunTask(setupViewerTask);
+                     }
+                  }
+               }
+            );
+				rhLimitSatDriftCheck = new JCheckBox("Limit %RH Saturation Drift " + "\r\n" + "to 0% and 100%", bLimitSatDrift);
+            rhLimitSatDriftCheck.setFont(fontPlain);
+            rhLimitSatDriftCheck.addActionListener(new ActionListener()
+               {
+                  public void actionPerformed(ActionEvent ae)
+                  {
+                     if(container!=null)
+                     {
+                        bLimitSatDrift = !bLimitSatDrift;
+                        ViewerProperties.setPropertyBoolean(
+                           MISSION_VIEWER_LIMITSATDRIFT, bLimitSatDrift);
+                        enqueueRunTask(setupViewerTask);
+                     }
+                  }
+               }
+            );
+         tGraphSettingsPanel.add(fahCheck);
+         tGraphSettingsPanel.add(celCheck);
+			hGraphSettingsPanel.add(rhTempCompCheck);
+			hGraphSettingsPanel.add(rhLimitSatDriftCheck);
+			graphSettingsPanel.add(tGraphSettingsPanel);
+		   graphSettingsPanel.add(hGraphSettingsPanel);
 
+      
+      c.fill = GridBagConstraints.HORIZONTAL;
+      c.ipady = 5;  
+      c.weightx = 1.0;
+      c.gridwidth = 3;
+      c.gridx = 0;
+      c.gridy = 0;
+		commandPanel.add(buttonPanel,c);
+		
+      //commandPanel.add(passwordPanel);
+      c.fill = GridBagConstraints.HORIZONTAL;
+      c.ipady = 6;      
+      c.weightx = 1.0;
+      c.gridwidth = 3;
+      c.gridx = 0;
+      c.gridy = 1;		
+      commandPanel.add(graphSettingsPanel,c); 
+		
       // add components to viewer
       add(commandScroll, BorderLayout.NORTH);
       add(tabbedResultsPane, BorderLayout.CENTER);
 
       clearContainer();
+		rhTempCompCheck.setEnabled(false); 
+		rhLimitSatDriftCheck.setEnabled(false); 
    }
 
    /**
@@ -612,7 +540,7 @@ public class MissionViewer extends Viewer
                this.tabbedResultsPane.removeAll();
                tabbedResultsPane.addTab("Status",null,featureScroll,
                   "Mission Status");
-               tabbedResultsPane.addTab("Temperature",null,temperatureScroll,
+               tabbedResultsPane.addTab("Temperature Data Log",null,temperatureScroll,
                   "Graphs the mission's temperature log");
                this.tabbedResultsPane.setEnabledAt(1, false);
 
@@ -639,8 +567,22 @@ public class MissionViewer extends Viewer
                   channelLabel.length==2);
                if(channelLabel.length==2)
                {
-                  tabbedResultsPane.addTab(channelLabel[1],null,dataScroll,
+                  /*
+                  tabbedResultsPane.addTab(channelLabel[1], null, dataScroll,
                      "Graphs the mission's data log");
+                  this.tabbedResultsPane.setEnabledAt(2, false);
+                  */
+                  if (channelLabel[1].equalsIgnoreCase("Humidity"))
+                  {
+                     //JOptionPane.showMessageDialog(null, "channelLabel[1] = " + channelLabel[1]); // !!!
+                     tabbedResultsPane.addTab("Humidity Data Log", null, dataScroll,
+                        "Graphs the mission's data log");
+                  }
+                  else
+                  {
+                     tabbedResultsPane.addTab(channelLabel[1], null, dataScroll,
+                        "Graphs the mission's data log");
+                  }
                   this.tabbedResultsPane.setEnabledAt(2, false);
                }
 
@@ -1047,14 +989,19 @@ public class MissionViewer extends Viewer
 
       public void executeTask()
       {
+		   double sample = 0.0;
+         String newline = System.getProperty("line.separator");
+         String missionResults = "";
          DSPortAdapter l_adapter = null;
          MissionContainer l_container = null;
+		   OneWireContainer41 owc41 = null;
          synchronized(syncObj)
          {
             if(adapter==null || container==null)
                return;
             l_adapter = adapter;
             l_container = container;
+			   owc41 = (OneWireContainer41) container;
          }
 
          MissionViewer.this.tabbedResultsPane.setSelectedIndex(0);
@@ -1066,6 +1013,8 @@ public class MissionViewer extends Viewer
          {
             l_adapter.beginExclusive(true);
             boolean success = true;
+            missionResults = missionResults + "1-Wire/iButton Part Number: " + ((OneWireContainer41)l_container).getName() + newline;
+            missionResults = missionResults + "1-Wire/iButton Registration Number: " + ((OneWireContainer41)l_container).getAddressAsString() + newline;
             if(reloadResults || !l_container.isMissionLoaded())
             {
                success = false;
@@ -1093,8 +1042,10 @@ public class MissionViewer extends Viewer
                + ((OneWireContainer41)l_container).isMissionSUTA());
             lblFeature[MISSION_WFTA].setText(" "
                + ((OneWireContainer41)l_container).isMissionWFTA());
+
             lblFeature[SAMPLE_RATE].setText(" Every " +
                            (sample_rate) + " second(s)");
+
             int sample_count = l_container.getMissionSampleCount(0)
                              | l_container.getMissionSampleCount(1);
             if(sample_count>0)
@@ -1110,13 +1061,13 @@ public class MissionViewer extends Viewer
             lblFeature[MISSION_SAMPLES].setText(" " +
                            nf.format(sample_count));
             lblFeature[ROLL_OVER].setText(" " + l_container.isMissionRolloverEnabled()
-             + (l_container.hasMissionRolloverOccurred()?"(rolled over)":"(no rollover)"));
+			 + (l_container.hasMissionRolloverOccurred() ? "(rolled over occurred)" : "(no rollover occurred)"));
             lblFeature[FIRST_SAMPLE_TIMESTAMP].setText(" " + new Date(
                l_container.getMissionSampleTimeStamp(0,0) | l_container.getMissionSampleTimeStamp(1,0)));
             lblFeature[TOTAL_SAMPLES].setText(" " + l_container.getMissionSampleCountTotal(0));
 
             if(l_container.getMissionChannelEnable(0))
-               lblFeature[TEMP_LOGGING].setText(" " + l_container.getMissionResolution(0) + " bit");
+               lblFeature[TEMP_LOGGING].setText(" " + l_container.getMissionResolution(0) + " C");
             else
                lblFeature[TEMP_LOGGING].setText(" disabled");
 
@@ -1174,7 +1125,7 @@ public class MissionViewer extends Viewer
             }
 
             if(l_container.getMissionChannelEnable(1))
-               lblFeature[DATA_LOGGING].setText(" " + l_container.getMissionResolution(1) + " bit");
+               lblFeature[DATA_LOGGING].setText(" " + l_container.getMissionResolution(1) + " %RH");
             else
                lblFeature[DATA_LOGGING].setText(" disabled");
             if(l_container.getMissionChannelEnable(1) &&
@@ -1232,7 +1183,27 @@ public class MissionViewer extends Viewer
                ((OneWireContainer41)l_container).setTemperatureCalibrationRegisterUsage(
                   ViewerProperties.getPropertyBoolean("DS1922H.useTemperatureCalibrationRegisters", true));
             }
+            
+            missionResults += strHeader[IS_ACTIVE] + lblFeature[IS_ACTIVE].getText() + newline;
+            missionResults += strHeader[MISSION_SUTA] + lblFeature[MISSION_SUTA].getText() + newline;
+            missionResults += strHeader[MISSION_WFTA] + lblFeature[MISSION_WFTA].getText() + newline;
+            missionResults += strHeader[SAMPLE_RATE] + lblFeature[SAMPLE_RATE].getText() + newline;
+            missionResults += strHeader[MISSION_START] + lblFeature[MISSION_START].getText() + newline;
+            missionResults += strHeader[MISSION_SAMPLES] + lblFeature[MISSION_SAMPLES].getText() + newline;
+            missionResults += strHeader[ROLL_OVER] + lblFeature[ROLL_OVER].getText() + newline;
+            missionResults += strHeader[FIRST_SAMPLE_TIMESTAMP] + lblFeature[FIRST_SAMPLE_TIMESTAMP].getText() + newline;
+            missionResults += strHeader[TOTAL_SAMPLES] + lblFeature[TOTAL_SAMPLES].getText() + newline;
+            missionResults += strHeader[DEVICE_SAMPLES] + lblFeature[DEVICE_SAMPLES].getText() + newline;
+            missionResults += strHeader[TEMP_LOGGING] + lblFeature[TEMP_LOGGING].getText() + newline;
+            missionResults += strHeader[TEMP_HIGH_ALARM] + lblFeature[TEMP_HIGH_ALARM].getText() + newline;
+            missionResults += strHeader[TEMP_LOW_ALARM] + lblFeature[TEMP_LOW_ALARM].getText() + newline;
+            missionResults += strHeader[DATA_LOGGING] + lblFeature[DATA_LOGGING].getText() + newline;
+            missionResults += strHeader[DATA_HIGH_ALARM] + lblFeature[DATA_HIGH_ALARM].getText() + newline;
+            missionResults += strHeader[DATA_LOW_ALARM] + lblFeature[DATA_LOW_ALARM].getText() + newline + newline;
+            missionResults += "Date/Time,Unit,Value" + newline;
 
+            temperaturePlot.setHeaderString(missionResults);
+            
             temperaturePlot.resetPlot();
             if(l_container.getMissionChannelEnable(0))
             {
@@ -1278,9 +1249,22 @@ public class MissionViewer extends Viewer
                   ViewerProperties.getPropertyBoolean("DS1922H.useHumidityCalibrationRegisters", true));
             }*/
 
+            dataPlot.setHeaderString(missionResults);
             dataPlot.resetPlot();
             if(l_container.getMissionChannelEnable(1))
             {
+               owc41.setDefaultTemperatureCompensationValue((double)25.0, false); // set readings to compensate at 25C			
+               if (bTCompensation) // if user selected temperature compensation
+               {					
+			         owc41.setTemperatureCompensationUsage(true); 
+					}
+					else
+               {					
+
+			         owc41.setTemperatureCompensationUsage(false);
+					}
+					
+					// is it a "data" or "humidity" channel?
                if(l_container.getMissionLabel(1).equals("Data"))
                {
                   // plot the data log
@@ -1295,21 +1279,35 @@ public class MissionViewer extends Viewer
                }
                else
                {
-                  // plot the data log
+                  // plot the data log for humidity
                   for(int i=0; i<l_container.getMissionSampleCount(1); i++)
-                     dataPlot.addPoint(
-                        l_container.getMissionSample(1,i),
-                           df.format(
-                              new Date(
-                                 l_container.getMissionSampleTimeStamp(0, i)))
-
-                           + ",%RH");
-
+						{
+						   sample = l_container.getMissionSample(1,i);
+							// check to see if we are limiting for %RH saturation drift if over 100% RH then limit
+							// reading to 100% RH.  Same with under 0% RH, limit to 0% RH
+							if (bLimitSatDrift)
+							{
+							   if (sample > 100) sample = 100;
+								if (sample < 0) sample = 0;
+							}
+							dataPlot.addPoint(sample,
+                        df.format(
+                           new Date(l_container.getMissionSampleTimeStamp(0, i)))
+                        + ",%RH");
+						}
+		            MissionViewer.this.rhTempCompCheck.setEnabled(true);
+		            MissionViewer.this.rhLimitSatDriftCheck.setEnabled(true); 
+						
                }
                MissionViewer.this.tabbedResultsPane.setEnabledAt(2, true);
                //if(l_container.getMissionSampleCount(0)>2048)
                //   dataPlot.zoomFull();
             }
+				else
+				{
+				   rhTempCompCheck.setEnabled(false);
+		         rhLimitSatDriftCheck.setEnabled(false);
+				}
 
             // Read the alarm history
             /*
@@ -1595,9 +1593,10 @@ public class MissionViewer extends Viewer
          add(tempGrid, BorderLayout.WEST);
       }
    }
-
+   
    /**
     */
+
    protected class SetDevicePasswordTask extends ViewerTask
    {
       DSPortAdapter task_adapter = null;
@@ -1660,8 +1659,10 @@ public class MissionViewer extends Viewer
             cmdButton[btn].setEnabled(true);
       }
    }
+//*/
    /**
     */
+
    protected class SetPasswordEnableTask extends ViewerTask
    {
       DSPortAdapter task_adapter = null;
@@ -1712,4 +1713,11 @@ public class MissionViewer extends Viewer
             cmdButton[btn].setEnabled(true);
       }
    }
+//*/
+   /**
+    */
+   public void getMissionStatusString()
+   {
+   }
+
 }

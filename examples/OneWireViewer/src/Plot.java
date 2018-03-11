@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2001 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,19 +14,22 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
 
 import javax.swing.JPanel;
 import javax.swing.*;
+import javax.swing.filechooser.*;
+import javax.swing.SwingUtilities;
+import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -84,6 +87,10 @@ public class Plot extends JPanel
    private static final java.text.NumberFormat nf = 
       new java.text.DecimalFormat();
 
+   /** mission status data -- can be optionally populated */
+   private String missionStatusData = ""; // !!!
+   private JFileChooser fc;
+
    /** context-menu for pop-up, allows copying data to the scratchpad */
    private JPopupMenu data = null;
 
@@ -136,12 +143,18 @@ public class Plot extends JPanel
       JMenuItem copyData = new JMenuItem("Copy Data to Clipboard without Labels");
       copyData.setActionCommand("CopyWithoutLabels");
       copyData.addActionListener(this);
+      // save data with labels
+      JMenuItem saveData = new JMenuItem("Save Data to .csv File");
+      saveData.setActionCommand("SaveData");
+      saveData.addActionListener(this);
+      // rescale graph
       JMenuItem rescale = new JMenuItem("Rescale Graph");
       rescale.setActionCommand("RescaleGraph");
       rescale.addActionListener(this);
       data.add(copyDataComma);
       data.add(copyDataLabel);
       data.add(copyData);
+      data.add(saveData);
       data.add(rescale);
       this.add(data);
 
@@ -157,6 +170,7 @@ public class Plot extends JPanel
    public void actionPerformed(ActionEvent ae)
    {
       int currIndex = pointIndex;
+      boolean copyToClipboard = true;
       double[] currPoints = points;
       String[] currPointsLabel = pointsLabel;
       int oldMaxFractionDigits = nf.getMaximumFractionDigits();
@@ -197,13 +211,30 @@ public class Plot extends JPanel
                   sb.append(nf.format(currPoints[i]));
                }
             }
-            StringSelection ss = new StringSelection(sb.toString());
-            Toolkit tk = Toolkit.getDefaultToolkit();
-            tk.getSystemClipboard().setContents(ss, ss);
+            else if (ae.getActionCommand().equals("SaveData"))
+            {
+               for (int i = 0; i < currIndex; i++)
+               {
+                  sb.append(currPointsLabel[i]);
+                  sb.append(',');
+                  sb.append(nf.format(currPoints[i]));
+                  sb.append("\n");
+               }
+               saveFile(sb.toString());
+               copyToClipboard = false;
+            }
+            if (copyToClipboard)
+            {
+               StringSelection ss = new StringSelection(sb.toString());
+               Toolkit tk = Toolkit.getDefaultToolkit();
+               tk.getSystemClipboard().setContents(ss, ss);
+            }
          }
       }
       nf.setMaximumFractionDigits(oldMaxFractionDigits);
    }
+
+
 
    /**
     * Returns the maximum number of points this plot can display.
@@ -825,4 +856,86 @@ public class Plot extends JPanel
     */
    public void mouseExited(MouseEvent e)
    {}
+
+   /* (non-Javadoc)
+    * 
+    */
+   private void saveFile(String fileData)
+   {
+      JFileChooser jfc = new JFileChooser();
+      File f;
+
+      //FileNameExtensionFilter filter = new FileNameExtensionFilter("*.csv", "csv"); // FileNameExtensionFilter is a Java 6 - only class. Let's stay at Java 5 u19
+      //jfc.setFileFilter(filter); // Java 5 (not 6)
+
+      // Set the current directory to the application's current directory
+      try
+      {
+         // Create a File object containing the canonical path of the
+         // desired file         
+         String filepath = ViewerProperties.getProperty("chart.save.filepath");
+         if (filepath != null) // if not in onewireviewer.properties, then default to same directory as OneWireViewer
+         {
+            f = new File(filepath);
+         }
+         else
+         {
+            f = new File(".");
+         }
+
+         // Set the selected file
+         jfc.setSelectedFile(f);
+      }
+      catch (Exception e)
+      {
+      }
+
+      int result = jfc.showSaveDialog(this);
+      if (result == JFileChooser.CANCEL_OPTION) return;
+      File file = jfc.getSelectedFile();
+      File file2 = new File(file.getPath() + ".csv");
+
+      // check if file already exists
+      if (file.exists() || file2.exists())
+      {
+         // warn of possible overwrite
+         int response = JOptionPane.showConfirmDialog (null,
+           "Overwrite existing file?","Confirm Overwrite",
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.QUESTION_MESSAGE);
+         if (response == JOptionPane.CANCEL_OPTION) return;
+      }
+
+      try
+      {
+         BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+         //bw.write("MissionStatusData = " + missionStatusData); // !!!
+         bw.write(missionStatusData + fileData);
+         bw.close();
+         if (file.getName().indexOf(".csv") == -1) // handle automatically naming with "csv" as extension
+         {
+            // if we don't find a ".csv" in the file name, rename file to have 3-letter extension.
+            file.renameTo(file2);
+         }
+         ViewerProperties.setProperty("chart.save.filepath", file.getCanonicalPath());
+      }
+      catch (Exception e)
+      {
+         JOptionPane.showMessageDialog(
+            this,
+            e.getMessage(),
+            "File Error",
+            JOptionPane.ERROR_MESSAGE
+         );
+      }
+   }
+   public void setHeaderString(String headerInfo) // !!!
+   {
+      missionStatusData = headerInfo;
+      return;
+   }
+   public String getHeaderString() // !!!
+   {
+      return missionStatusData;
+   }
 }

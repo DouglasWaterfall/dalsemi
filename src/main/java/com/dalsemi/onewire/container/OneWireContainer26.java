@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -36,8 +36,8 @@ import java.util.*;
 
 
 /**
- *  <P>1-Wire&#174 container that encapsulates the functionality of the 1-Wire
- *  family type <B>26</B> (hex), Dallas Semiconductor part number: <B>DS2438,
+ *  <P>1-Wire&reg; container that encapsulates the functionality of the 1-Wire
+ *  family type <B>26</B> (hex), Maxim Integrated Products part number: <B>DS2438,
  *  Smart Battery Monitor</B>.</P>
  *
  * <H2>Features</H2>
@@ -48,8 +48,8 @@ import java.util.*;
  *       total of all current going into and out of the battery
  *   <LI>elapsed time meter
  *   <LI>40 bytes of nonvolatile EEPROM memory for storage of important parameters
- *   <LI>Operating temperature range from -40&#176C to
- *        +85&#176Ci
+ *   <LI>Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
+ *        +85@htmlonly &#176C @endhtmlonlyi
  * </UL>
  *
  * <H2>Note</H2>
@@ -315,7 +315,7 @@ public class OneWireContainer26
    }
 
    /**
-    *  Returns the Dallas Semiconductor part number of this 1-Wire device
+    *  Returns the Maxim Integrated Products part number of this 1-Wire device
     *  as a string.
     *
     *  @return representation of this 1-Wire device's name
@@ -327,7 +327,7 @@ public class OneWireContainer26
    }
 
    /**
-    *  Return the alternate Dallas Semiconductor part number or name.
+    *  Return the alternate Maxim Integrated Products part number or name.
     *  ie. Smart Battery Monitor
     *
     *  @return representation of the alternate name(s)

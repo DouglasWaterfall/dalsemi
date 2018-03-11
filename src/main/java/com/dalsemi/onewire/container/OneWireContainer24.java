@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999 - 2001 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999 - 2001 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -47,9 +47,9 @@ import com.dalsemi.onewire.utils.Convert;
  *   <LI> Real-Time Clock with fully compatible 1-Wire MicroLAN interface
  *   <LI> Uses the same binary time/date representation as the DS2404
  *        but with 1 second resolution
- *   <LI> Clock accuracy ± 2 minutes per month at 25&#176
- *   <LI> Operating temperature range from -40&#176C to
- *        +70&#176C (iButton), -40&#176C to +85&#176C (1-Wire chip)
+ *   <LI> Clock accuracy @htmlonly &#177 @endhtmlonly 2 minutes per month at 25@htmlonly &#176C @endhtmlonly
+ *   <LI> Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
+ *        +70@htmlonly &#176C @endhtmlonly (iButton), -40@htmlonly &#176C @endhtmlonly to +85@htmlonly &#176C @endhtmlonly (1-Wire chip)
  *   <LI> Over 10 years of data retention (iButton form factor)
  *   <LI> Low power, 200 nA typical with oscillator running
  * </UL>
@@ -213,7 +213,7 @@ public class OneWireContainer24
    //--------
 
    /**
-    * Get the Dallas Semiconductor part number of the iButton
+    * Get the Maxim Integrated Products part number of the iButton
     * or 1-Wire Device as a string.  For example 'DS1992'.
     *
     * @return iButton or 1-Wire device name
@@ -224,7 +224,7 @@ public class OneWireContainer24
    }
 
    /**
-    * Get the alternate Dallas Semiconductor part numbers or names.
+    * Get the alternate Maxim Integrated Products part numbers or names.
     * A 'family' of 1-Wire Network devices may have more than one part number
     * depending on packaging.  There can also be nicknames such as
     * 'Crypto iButton'.

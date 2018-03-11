@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2002-2003 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2002-2012 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -37,7 +37,7 @@ import com.dalsemi.onewire.debug.*;
 
 
 /**
- * <P> 1-Wire&#174 container for a Temperature and Humidity/A-D Logging iButton, DS1922.
+ * <P> 1-Wire&reg; container for a Temperature and Humidity/A-D Logging iButton, DS1922.
  * This container encapsulates the functionality of the 1-Wire family type <B>22</B> (hex).
  * </P>
  *
@@ -114,7 +114,7 @@ import com.dalsemi.onewire.debug.*;
  * <ul>
  *     <li>Rollover flag enabled.</li>
  *     <li>Sets both channels (temperature and humidity) to low resolution</li>
- *     <li>High temperature alarm of 28.0&#176 and a low temperature alarm of 23.0&#176 C.</li>
+ *     <li>High temperature alarm of 28.0@htmlonly &#176C @endhtmlonly and a low temperature alarm of 23.0@htmlonly &#176C @endhtmlonly.</li>
  *     <li>High humidity alarm of 70%RH and a low temperature alarm of 20%RH.</li>
  *     <li>Sets the Real-Time Clock to the host system's clock.</li>
  *     <li>The mission will start in 2 minutes.</li>
@@ -216,8 +216,8 @@ import com.dalsemi.onewire.debug.*;
  * @see com.dalsemi.onewire.container.MissionContainer
  * @see com.dalsemi.onewire.container.PasswordContainer
  *
- * @version    1.00, 1 June 2003
- * @author     shughes
+ * @version    1.04, 10 April 2010
+ * @author     Maxim Integrated Products
  *
  */
 public class OneWireContainer41 extends OneWireContainer
@@ -249,7 +249,7 @@ public class OneWireContainer41 extends OneWireContainer
    // memory bank for mission log
    private MemoryBankNVCRCPW log = null;
 
-   // Maxim/Dallas Semiconductor Part number
+   // Maxim/Maxim Integrated Products Part number
    private String partNumber = null;
 
    // Device Configuration Byte
@@ -501,6 +501,13 @@ public class OneWireContainer41 extends OneWireContainer
    public static final byte DCB_DS1922L = 0x40;
    /** Value of Device Configuration Register for DS1922T */
    public static final byte DCB_DS1922T = 0x60;
+   /** Value of Device Configuration Register for DS1922E */
+   public static final byte DCB_DS1922E = (byte)0x80;
+   /** Value of Device Configuration Register for DS1922F !!!*/
+   public static final byte DCB_DS1922F = (byte)0xC0;	
+   /** Value of Device Configuration Register for DS1922S */
+   public static final byte DCB_DS1922S = (byte)0xA0;
+
 
    // 1 byte, alternating ones and zeroes indicates passwords are enabled
    /** Address of the Password Control Register. */
@@ -535,7 +542,10 @@ public class OneWireContainer41 extends OneWireContainer
    private static final String PART_NUMBER_DS2422 = "DS2422";
    private static final String PART_NUMBER_DS1922L = "DS1922L";
    private static final String PART_NUMBER_DS1922T = "DS1922T";
-   private static final String PART_NUMBER_UNKNOWN = "DS1922/DS1923/DS2422";
+   private static final String PART_NUMBER_DS1922E = "DS1922E";
+   private static final String PART_NUMBER_DS1922F = "DS1922F"; // !!!
+   private static final String PART_NUMBER_DS1922S = "DS1922S";
+   private static final String PART_NUMBER_UNKNOWN = "DS1922/DS1923/DS2422/?";
 
    private static final String DESCRIPTION_DS1923 =
       "The DS1923 Temperature/Humidity Logger iButton is a rugged, " +
@@ -551,13 +561,13 @@ public class OneWireContainer41 extends OneWireContainer
       "can be password-protected.";
 
    private static final String DESCRIPTION_DS1922 =
-      "The DS1922L/T Temperature Logger iButtons are rugged, " +
+      "The DS1922L/T/E/S Temperature Logger iButtons are rugged, " +
       "self-sufficient systems that measure temperature and record the " +
       "result in a protected memory section. The recording is done at a " +
       "user-defined rate. A total of 8192 8-bit readings or 4096 16-bit " +
       "readings taken at equidistant intervals ranging from 1s to 273hrs " +
       "can be stored. In addition to this, there are 512 bytes of SRAM for " +
-      "storing applicationspecific information and 64 bytes for calibration " +
+      "storing application-specific information and 64 bytes for calibration " +
       "data. A mission to collect data can be programmed to begin " +
       "immediately, or after a user-defined delay or after a temperature " +
       "alarm. Access to the memory and control functions can be password " +
@@ -583,7 +593,8 @@ public class OneWireContainer41 extends OneWireContainer
       + "result recorded in a protected memory section. It stores up "
       + "to 8192 1-byte measurements, which can be filled with 1- or "
       + "2-byte temperature readings and 1- or 2-byte A-to-D/Humidity readings "
-      + "taken at a user-specified rate.";
+      + "taken at a user-specified rate. "
+	  +"\nDevice not supported by 1-Wire Viewer.";
 
 
 // *****************************************************************************
@@ -1210,7 +1221,7 @@ public class OneWireContainer41 extends OneWireContainer
    }
 
    /**
-    * Gets the Dallas Semiconductor part number of the iButton
+    * Gets the Maxim Integrated Products part number of the iButton
     * or 1-Wire Device as a <code>java.lang.String</code>.
     * For example "DS1992".
     *
@@ -1222,7 +1233,7 @@ public class OneWireContainer41 extends OneWireContainer
    }
 
    /**
-    * Retrieves the alternate Dallas Semiconductor part numbers or names.
+    * Retrieves the alternate Maxim Integrated Products part numbers or names.
     * A 'family' of MicroLAN devices may have more than one part number
     * depending on packaging.  There can also be nicknames such as
     * "Crypto iButton".
@@ -2052,7 +2063,7 @@ public class OneWireContainer41 extends OneWireContainer
                           state, SAMPLE_RATE&0x3F, 2);
 
       Convert.toByteArray(missionStartDelay,
-                          state, MISSION_START_DELAY&0x3F, 2);
+                          state, MISSION_START_DELAY&0x3F, 3);
 
       setFlag(MISSION_CONTROL_REGISTER,
               MCR_BIT_ENABLE_ROLLOVER, rolloverEnabled, state);
@@ -2290,7 +2301,8 @@ public class OneWireContainer41 extends OneWireContainer
     */
    public int getNumberMissionChannels()
    {
-      if(deviceConfigByte==DCB_DS1922L || deviceConfigByte==DCB_DS1922T)
+      if(deviceConfigByte==DCB_DS1922L || deviceConfigByte==DCB_DS1922T ||
+		 deviceConfigByte==DCB_DS1922E || deviceConfigByte==DCB_DS1922F || deviceConfigByte==DCB_DS1922S)
          return 1; // temperature only
       else
          return 2; // temperature and data/voltage/humidity
@@ -2496,13 +2508,22 @@ public class OneWireContainer41 extends OneWireContainer
       {
          val = decodeTemperature(
                   temperatureLog, sampleNum*temperatureBytes, temperatureBytes, true);
-         if(useTempCalibrationRegisters)
+						
+		 if (useTempCalibrationRegisters && (partNumber != PART_NUMBER_DS1922E)) // DS1922E does not use calibration registers
          {
-            double valsq = val*val;
-            double error
-               = tempCoeffA*valsq + tempCoeffB*val + tempCoeffC;
-            val = val - error;
+				if ((partNumber == PART_NUMBER_DS1922F) && (val < 130.0)) // !!!
+				{ // !!!
+				  // !!! do nothing -- the DS1922F only gets software corrected above 130 degrees Celsius
+				} // !!!
+				else // !!!
+				{ // !!!			
+					double valsq = val*val;
+					double error
+						= tempCoeffA*valsq + tempCoeffB*val + tempCoeffC;
+					val = val - error;
+				} // !!!
          }
+
       }
       else if(channel==DATA_CHANNEL)
       {
@@ -3358,12 +3379,20 @@ public class OneWireContainer41 extends OneWireContainer
    public double getTemperature (byte[] state)
    {
       double val = decodeTemperature(state, LAST_TEMPERATURE_CONVERSION_LSB&0x3F, 2, false);
-      if(useTempCalibrationRegisters)
+	   if (useTempCalibrationRegisters && (partNumber != PART_NUMBER_DS1922E)) // DS1922E does not use calibration registers
       {
-         double valsq = val*val;
-         double error
-            = tempCoeffA*valsq + tempCoeffB*val + tempCoeffC;
-         val = val - error;
+		   if ((partNumber == PART_NUMBER_DS1922F) && (val < 130.0)) // !!!
+			{ // !!!
+			  // !!! do nothing -- the DS1922F only gets software corrected above 130 degrees Celsius
+			} // !!!
+			else // !!!
+			{ // !!!
+		
+				double valsq = val*val;
+				double error
+					= tempCoeffA*valsq + tempCoeffB*val + tempCoeffC;
+				val = val - error;
+			} // !!!
       }
       return val;
    }
@@ -3391,12 +3420,19 @@ public class OneWireContainer41 extends OneWireContainer
       else
          th = decodeTemperature(state,
                  TEMPERATURE_LOW_ALARM_THRESHOLD&0x3F, 1, false);
-      if(useTempCalibrationRegisters)
+	   if (useTempCalibrationRegisters && (partNumber != PART_NUMBER_DS1922E)) // DS1922E does not use calibration registers
       {
-         double thsq = th*th;
-         double error
-            = tempCoeffA*thsq + tempCoeffB*th + tempCoeffC;
-         th = th - error;
+		   if ((partNumber == PART_NUMBER_DS1922F) && (th < 130.0)) // !!!
+			{ // !!!
+			  // !!! do nothing -- the DS1922F only gets software corrected above 130 degrees Celsius
+			} // !!!
+			else // !!!
+			{ // !!!		
+				double thsq = th*th;
+				double error
+					= tempCoeffA*thsq + tempCoeffB*th + tempCoeffC;
+				th = th - error;
+			} // !!!
       }
       return th;
    }
@@ -3436,13 +3472,20 @@ public class OneWireContainer41 extends OneWireContainer
    public void setTemperatureAlarm (int alarmType, double alarmValue,
                                     byte[] state)
    {
-      if(useTempCalibrationRegisters)
+	   if (useTempCalibrationRegisters && (partNumber != PART_NUMBER_DS1922E)) // DS1922E does not use calibration registers
       {
-         alarmValue =
-            ( (1 - tempCoeffB)
-              - Math.sqrt( ((tempCoeffB - 1)*(tempCoeffB - 1))
-              - 4*tempCoeffA*(tempCoeffC + alarmValue) )
-            ) / (2*tempCoeffA);
+		   if ((partNumber == PART_NUMBER_DS1922F) && (alarmValue < 130.0)) // !!!
+			{ // !!!
+			  // !!! do nothing -- the DS1922F only gets software corrected above 130 degrees Celsius
+			} // !!!
+			else // !!!
+			{ // !!!
+            alarmValue =
+               ( (1 - tempCoeffB)
+                 - Math.sqrt( ((tempCoeffB - 1)*(tempCoeffB - 1))
+                 - 4*tempCoeffA*(tempCoeffC + alarmValue) )
+               ) / (2*tempCoeffA);
+			} // !!!
       }
 
       if(alarmType==TemperatureContainer.ALARM_HIGH)
@@ -4733,7 +4776,9 @@ public class OneWireContainer41 extends OneWireContainer
     *     DS1923 - Temperature/Humidity iButton
     *     DS1922L - Temperature iButton
     *     DS1922T - Extended Temperature iButton
-    *     DS1i22S - Temperature/A-D iButton
+	 *     DS1922E - Extended Further Temperature iButton
+	 *     DS1922F - Autoclave Temperature iButton to 140C
+    *     DS1922S - Temperature iButton that is one time programmable
     */
    private void setContainerVariables(byte[] registerPages)
    {
@@ -4792,6 +4837,26 @@ public class OneWireContainer41 extends OneWireContainer
             Tref1 = 90;
             descriptionString = DESCRIPTION_DS1922;
             break;
+		   case DCB_DS1922E:
+			   partNumber = PART_NUMBER_DS1922E;
+			   temperatureRangeLow = 15;
+			   temperatureRangeWidth = 125;
+			   descriptionString = DESCRIPTION_DS1922;
+			   break;
+		   case DCB_DS1922F:                          // !!!
+			   partNumber = PART_NUMBER_DS1922F;       // !!!
+			   temperatureRangeLow = 15;               // !!!
+			   temperatureRangeWidth = 125;            // !!!
+				Tref1 = 130;                            // !!!
+			   descriptionString = DESCRIPTION_DS1922; // !!!
+			   break;				
+		   case DCB_DS1922S:
+            partNumber = PART_NUMBER_DS1922S;
+            temperatureRangeLow = -40;
+            temperatureRangeWidth = 125;
+            Tref1 = 60;
+            descriptionString = DESCRIPTION_DS1922 + "\r\n\r\n* Please note that the DS1922S can be missioned only once.";
+            break;			
          default:
             partNumber = PART_NUMBER_UNKNOWN;
             temperatureRangeLow = -40;
@@ -4870,6 +4935,9 @@ public class OneWireContainer41 extends OneWireContainer
                }
             }
 
+			//if (partNumber == PART_NUMBER_DS1922E)
+			//	useTempCalibrationRegisters = false; // !!!
+
             Tref2 = decodeTemperature(registerPages, 0x40, 2, true);
             Tread2 = decodeTemperature(registerPages, 0x42, 2, true);
             Terror2 = Tread2 - Tref2;
@@ -4938,17 +5006,17 @@ public class OneWireContainer41 extends OneWireContainer
       if(reverse && length==2)
       {
          fraction = ((data[offset+1]&0x0FF)/512d);
-         whole = (data[offset]&0x0FF)/2d + (temperatureRangeLow-1);
+		 whole = (data[offset]&0x0FF)/2d + (temperatureRangeLow-1);
       }
       else if(length==2)
       {
          fraction = ((data[offset]&0x0FF)/512d);
-         whole = (data[offset+1]&0x0FF)/2d + (temperatureRangeLow-1);
-      }
+		 whole = (data[offset+1]&0x0FF)/2d + (temperatureRangeLow-1);
+	  }
       else
       {
          whole = (data[offset]&0x0FF)/2d + (temperatureRangeLow-1);
-      }
+	  }
       //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
       if(DEBUG)
       {
@@ -4982,6 +5050,7 @@ public class OneWireContainer41 extends OneWireContainer
             + ", temperatureRangeLow=" + temperatureRangeLow
             + ", val=" + val);
       //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+
       if(reverse && length==2)
       {
          data[offset+1] = (byte)(0x0C0&(byte)(val*256));

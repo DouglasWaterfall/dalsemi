@@ -10,7 +10,7 @@ public class ViewerFactory
    public static final String REGISTERED_VIEWERS = "registered.viewers";
    public static final String REGISTERED_VIEWERS_DEF
       = "TemperatureViewer,HumidityViewer,SwitchViewer,PotentiometerViewer,"
-      + "ADViewer,ClockViewer,MemoryViewer,FileViewer,SHA18Viewer,SHA33Viewer,"
+      + "ADViewer,ClockViewer,MemoryViewer,FileViewer,PasswordViewer,SHA18Viewer,SHA33Viewer,"
       + "ThermochronViewer,MissionViewer";
 
    private ContainerViewer containerViewer = null;

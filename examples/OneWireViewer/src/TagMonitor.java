@@ -42,7 +42,16 @@ public class TagMonitor
 
    public void resetSearch()
    {
+      tagStore.clear();
+      tagFileStore.clear();
       monitor.resetSearch();
+   }
+
+   public void setMonitor(NetworkDeviceMonitor NDM) // BDH added to allow manual searches from timer thread
+   {
+      this.monitor = NDM;
+      monitor.addDeviceMonitorEventListener(this);
+      monitor.setBranchAutoSearching(false);
    }
 
    public boolean pauseMonitor(boolean blocking)
@@ -68,19 +77,9 @@ public class TagMonitor
    public void setAdapter(DSPortAdapter adapter)
    {
       this.adapter = adapter;
-      if(monitor==null)
-      {
-         monitor = new NetworkDeviceMonitor(adapter);
-         monitor.addDeviceMonitorEventListener(this);
-         monitor.setBranchAutoSearching(false);
-         monitor.pauseMonitor(true);
-         Thread t = new Thread(monitor);
-         t.start();
-      }
-      else
-      {
-         monitor.setAdapter(adapter);
-      }
+      // BDH deleted portion of code that started monitor in external thread 
+      // to allow use in timer thread
+      monitor.setAdapter(adapter);
    }
 
    public void setDevicePanel(DevicePanel devicePanel)

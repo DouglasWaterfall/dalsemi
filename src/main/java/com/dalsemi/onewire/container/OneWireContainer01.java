@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -33,8 +33,8 @@ import com.dalsemi.onewire.adapter.*;
 
 
 /**
- * <P>1-Wire&#174 container that encapsulates the functionality of the 1-Wire
- * family type <B>01</B> (hex), Dallas Semiconductor part number: <B>DS1990A,
+ * <P>1-Wire&reg; container that encapsulates the functionality of the 1-Wire
+ * family type <B>01</B> (hex), Maxim Integrated Products part number: <B>DS1990A,
  * Serial Number</B>.</P>
  *
  * <P> This 1-Wire device is used as a unique serial number. </P>
@@ -42,8 +42,8 @@ import com.dalsemi.onewire.adapter.*;
  * <H2> Features </H2>
  * <UL>
  *   <LI> 64 bit unique serial number
- *   <LI> Operating temperature range from -40&#176C to
- *        +85&#176C
+ *   <LI> Operating temperature range from -40@htmlonly &#176C @endhtmlonly to
+ *        +85@htmlonly &#176C @endhtmlonly
  * </UL>
  *
  * <H2> Alternate Names </H2>

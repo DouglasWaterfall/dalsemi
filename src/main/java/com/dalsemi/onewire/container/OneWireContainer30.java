@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -34,8 +34,8 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
- *<P>1-Wire&#174 container that encapsulates the functionality of the 1-Wire
- * family type <B>30</B> (hex), Dallas Semiconductor part number: <B>DS2760,
+ *<P>1-Wire&reg; container that encapsulates the functionality of the 1-Wire
+ * family type <B>30</B> (hex), Maxim Integrated Products part number: <B>DS2760,
  * High Precision Li-ion Battery Monitor</B>.</P>
  *
  * <H3>Features</H3>
@@ -59,8 +59,8 @@ import java.util.Enumeration;
  *     <LI>16 bytes of general purpose SRAM
  *     <LI>Low power consumption
  *        <UL>
- *           <LI>Active current: 80 &#181A max
- *           <LI>Sleep current: 2 &#181A max
+ *           <LI>Active current: 80 @htmlonly &#181A @endhtmlonly max
+ *           <LI>Sleep current: 2 @htmlonly &#181A @endhtmlonly max
  *        </UL>
  * </UL>
  *
@@ -295,7 +295,7 @@ public class OneWireContainer30
    }
 
    /**
-    * Returns the Dallas Semiconductor part number of this 1-Wire device
+    * Returns the Maxim Integrated Products part number of this 1-Wire device
     * as a string.
     *
     * @return representation of the 1-Wire device name
@@ -307,7 +307,7 @@ public class OneWireContainer30
    }
 
    /**
-    * Returns the alternate Dallas Semiconductor part number or name.
+    * Returns the alternate Maxim Integrated Products part number or name.
     * ie. Smart Battery Monitor
     *
     *  @return representation of the alternate names for this device

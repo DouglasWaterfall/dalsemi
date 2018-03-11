@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2002 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -42,12 +42,14 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * new devices without reference to the branch which they lie on.</P>
  *
  * @author SH
- * @version 1.00
+ * @version 1.01
  */
 public class DeviceMonitor
    extends AbstractDeviceMonitor
 {
    private OWPath defaultPath = null;
+
+   private boolean doAlarmSearch = false;
 
    /**
     * Create a simple monitor that does not search branches
@@ -90,6 +92,30 @@ public class DeviceMonitor
    }
 
    /**
+    * Sets this monitor to search for alarming parts
+    *
+    * @param the DSPortAdapter this monitor should search
+    */
+   public void setDoAlarmSearch(boolean findAlarmingParts)
+   {
+      synchronized(sync_flag)
+      {
+         doAlarmSearch = findAlarmingParts;
+      }
+   }
+
+   /**
+    * See if Gets this monitor to search for alarming parts
+    *
+    * @param the DSPortAdapter this monitor should search
+    */
+   public boolean getDoAlarmSearch()
+   {
+      return doAlarmSearch;
+   }
+
+
+   /**
     * Performs a search of the 1-Wire network without searching branches
     *
     * @param arrivals A vector of Long objects, represent new arrival addresses.
@@ -117,10 +143,24 @@ public class DeviceMonitor
             {
                // get the 1-Wire address
                Long longAddress = new Long(adapter.getAddressAsLong());
-               if(!deviceAddressHash.containsKey(longAddress) && arrivals!=null)
-                  arrivals.addElement(longAddress);
+               // if requested to do an alarm search, then check device for an alarm condition and save in list
+               if (doAlarmSearch)
+               {
+                  if (adapter.isAlarming(longAddress.longValue()))
+                  {
+                     if(!deviceAddressHash.containsKey(longAddress) && arrivals!=null)
+                        arrivals.addElement(longAddress);
 
-               deviceAddressHash.put(longAddress, new Integer(max_state_count));
+                     deviceAddressHash.put(longAddress, new Integer(max_state_count));
+                  }
+               }
+               else
+               {
+                  if(!deviceAddressHash.containsKey(longAddress) && arrivals!=null)
+                     arrivals.addElement(longAddress);
+
+                  deviceAddressHash.put(longAddress, new Integer(max_state_count));
+               }
 
                // search for the next device
                search_result = adapter.findNextDevice();

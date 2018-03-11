@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2004 Maxim Integrated Products, All Rights Reserved.
+ * Copyright (C) 2008 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -37,26 +37,28 @@ import com.dalsemi.onewire.container.OneWireContainer;
 
 /**
  * <P>1-Wire&reg; container for the '1K-Bit protected 1-Wire EEPROM 
- * family type <B>2D</B> (hex), Maxim Integrated Products part number:
- * <B>DS2431/DS28E07</B>.
+ * family type <B>43</B> (hex), Maxim Integrated Products part number:
+ * <B>DS28EC20</B>.
  *
  * <H3> Features </H3>
  * <UL>
- *   <LI> 1024 bits of 5V EEPROM memory partitioned into four pages of 256 bits
- *   <LI> unique, fatory-lasered and tested 64-bit registration number (8-bit
- *        family code + 48-bit serial number + 8-bit CRC tester) assures
- *        absolute traceablity because no two parts are alike.
- *   <LI> Built-in multidrop controller ensures compatibility with other 1-Wire
- *        net products.
- *   <LI> Reduces control, address, data and power to a single data pin.
- *   <LI> Directly connects to a single port pin of a microprocessor and
- *        communicates at up to 16.3k bits per second.
- *   <LI> Overdrive mode boosts communication speed to 142k bits per second.
- *   <LI> 8-bit family code specifies DS2431/DS28E07 communication requirements to reader.
- *   <LI> Presence detector acknowledges when reader first applies voltage.
- *   <LI> Low cost 6-lead TSOC surface mount package
- *   <LI> Reads and writes over a wide voltage range of 2.8V to 5.25V from -40C
+ *   <LI> 20480 bits of 5V EEPROM memory partitioned into 80 pages of 256 bits
+ *   <LI> Individual 8-Page Groups of Memory Pages (Blocks) can be Permanently 
+ *        Write Protected or Put in OTP EPROM-Emulation Mode ("Write to 0")
+ *   <LI> 200k Write/Erase Cycle Endurance at +25C
+ *   <LI> 256-Bit Scratchpad with Strict Read/Write Protocols Ensures Integrity 
+ *        of Data Transfer
+ *   <LI> Unique Factory-Programmed 64-Bit Registration Number Ensures Error-Free 
+ *        Device Selection and Absolute Part Identity
+ *   <LI> Switchpoint Hysteresis and Filtering to Optimize Performance in the 
+ *        Presence of Noise
+ *   <LI> Communicates to Host at 15.4kbps or 125kbps Using 1-Wire Protocol
+ *   <LI> Reduces control, address, data and power to a single data pin
+ *   <LI> Low cost TO92 package or 6-pin TSOC package
+ *   <LI> Reads and writes at 5.0V + or - 5% from -40C
  *        to +85C.
+ *   <LI> IEC 1000-4-2 Level 4 ESD Protection (8kV Contact, 15kV Air, Typical) 
+ *        for I/O Pin
  * </UL>
  *
  * <P> The memory can also be accessed through the objects that are returned
@@ -66,12 +68,15 @@ import com.dalsemi.onewire.container.OneWireContainer;
  * <DD> </A>
  * </DL>
  *
- * @version 	0.00, 10 March 2004
+ * @version 	0.00, 19 February 2008
  * @author DS
  */
-public class OneWireContainer2D
+public class OneWireContainer43
    extends OneWireContainer
 {
+	// Scratchpad access memory bank
+	private MemoryBankScratchEE sp;
+
    /*
     * registery memory bank to control write-once (EPROM) mode
     */
@@ -92,10 +97,10 @@ public class OneWireContainer2D
    //--------
 
    /**
-    * Default Constructor OneWireContainer2D.
+    * Default Constructor OneWireContainer43.
     * Must call setupContainer before using.
     */
-   public OneWireContainer2D ()
+   public OneWireContainer43 ()
    {
       super();
    }
@@ -108,7 +113,7 @@ public class OneWireContainer2D
     *                           this iButton.
     * @param  newAddress        address of this 1-Wire device
     */
-   public OneWireContainer2D (DSPortAdapter sourceAdapter, byte[] newAddress)
+   public OneWireContainer43 (DSPortAdapter sourceAdapter, byte[] newAddress)
    {
       super(sourceAdapter, newAddress);
 
@@ -124,7 +129,7 @@ public class OneWireContainer2D
     *                           this iButton.
     * @param  newAddress        address of this 1-Wire device
     */
-   public OneWireContainer2D (DSPortAdapter sourceAdapter, long newAddress)
+   public OneWireContainer43 (DSPortAdapter sourceAdapter, long newAddress)
    {
       super(sourceAdapter, newAddress);
 
@@ -140,7 +145,7 @@ public class OneWireContainer2D
     *                           this iButton.
     * @param  newAddress        address of this 1-Wire device
     */
-   public OneWireContainer2D (DSPortAdapter sourceAdapter, String newAddress)
+   public OneWireContainer43 (DSPortAdapter sourceAdapter, String newAddress)
    {
       super(sourceAdapter, newAddress);
 
@@ -208,7 +213,7 @@ public class OneWireContainer2D
     */
    public String getName ()
    {
-      return "DS1972";  
+      return "DS28EC20";  
    }
 
    /**
@@ -220,7 +225,7 @@ public class OneWireContainer2D
     */
    public String getAlternateNames ()
    {
-      return "DS2431/DS28E07";
+      return "";
    }
 
    /**
@@ -230,7 +235,7 @@ public class OneWireContainer2D
     */
    public String getDescription ()
    {
-      return "1K-Bit protected 1-Wire EEPROM.";
+      return "20Kb 1-Wire EEPROM";
    }
 
    /**
@@ -255,6 +260,9 @@ public class OneWireContainer2D
    {
       Vector bank_vector = new Vector(2);
 
+	  // scratchpad
+//	  bank_vector.addElement(( MemoryBank ) sp);
+
       // main memory
       bank_vector.addElement(( MemoryBank ) main_mem);
 
@@ -270,16 +278,33 @@ public class OneWireContainer2D
    private void initMem ()
    {
       // scratch pad
-      MemoryBankScratchEE sp  = new MemoryBankScratchEE(this);
-      sp.size                 = 8;
-      sp.pageLength           = 8;
-      sp.maxPacketDataLength  = 5;
+      sp                      = new MemoryBankScratchEE(this);
+      sp.size                 = 32;
+      sp.pageLength           = 32;
+      sp.maxPacketDataLength  = 29;
       sp.pageAutoCRC          = true;
-      sp.COPY_DELAY_LEN       = 30;  
+      sp.COPY_DELAY_LEN       = 10;  
       sp.ES_MASK              = (byte) 0;
 
       // main memory
       main_mem = new MemoryBankEEPROM(this,sp);
+
+      // initialize main memory
+	  main_mem.size = 2560;
+      main_mem.numberPages = 80;
+	  main_mem.scratchPadSize = 32;	   
+	  //readOnly = false;
+	  //nonVolatile = true;
+	  //pageAutoCRC = false;
+	  //lockPage = true;
+	  //programPulse = false;
+	  //powerDelivery = true;
+	  //extraInfo = false;
+	  //extraInfoLength = 0;
+	  //extraInfoDescription = null;
+	  //writeVerification = false;
+	  //startPhysicalAddress = 0;
+	  //doSetSpeed = true;
 
       // register memory
       register = new MemoryBankEEPROM(this,sp);
@@ -287,9 +312,9 @@ public class OneWireContainer2D
       // initialize attributes of this memory bank 
       register.generalPurposeMemory = false;
       register.bankDescription      = "Write-protect/EPROM-Mode control register";
-      register.numberPages          = 1;
-      register.size                 = 8;
-      register.pageLength           = 8;
+      register.numberPages          = 2;
+      register.size                 = 64;
+      register.pageLength           = 32;
       register.maxPacketDataLength  = 0;
       register.readWrite            = true;
       register.writeOnce            = false;
@@ -303,7 +328,7 @@ public class OneWireContainer2D
       register.extraInfoLength      = 0;
       register.extraInfoDescription = null;
       register.writeVerification    = false;
-      register.startPhysicalAddress = 128;
+      register.startPhysicalAddress = 2560;
       register.doSetSpeed           = true;
       
       // set the lock mb

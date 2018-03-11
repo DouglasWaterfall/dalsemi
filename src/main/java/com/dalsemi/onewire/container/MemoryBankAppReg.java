@@ -1,6 +1,5 @@
-
-/*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Dallas Semiconductor Corporation, All Rights Reserved.
+/*******************************************************************************
+ * Copyright (C) 2012 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,15 +14,19 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
- * Branding Policy.
- *---------------------------------------------------------------------------
+ * Except as contained in this notice, the name of Maxim Integrated shall
+ * not be used except as stated in the Maxim Integrated Products, Inc. Branding Policy.
+ *
+ * The mere transfer of this software does not imply any licenses
+ * of trade secrets, proprietary technology, copyrights, patents,
+ * trademarks, maskwork rights, or any other form of intellectual
+ * property whatsoever. Maxim Integrated Products, Inc. retains all ownership rights.
+ *******************************************************************************
  */
 
 package com.dalsemi.onewire.container;
@@ -53,6 +56,11 @@ class MemoryBankAppReg
      * Memory page size
      */
    public static final int PAGE_SIZE = 8;
+
+   /**
+    * Copy Scratchpad Delay length
+    */
+   public static final int COPY_DELAY_LEN = 10;
 
    /**
      * Read Memory Command
@@ -863,6 +871,10 @@ class MemoryBankAppReg
    public void lockPage (int page)
       throws OneWireIOException, OneWireException
    {
+      // check if power delivery is available
+      if (!ib.adapter.canDeliverPower())
+         throw new OneWireException(
+            "Power delivery required but not available");
 
       // attempt to put device at the correct speed
       ib.doSpeed();
@@ -871,9 +883,26 @@ class MemoryBankAppReg
       if (!ib.adapter.select(ib.address))
          throw new OneWireIOException("Device select failed");
 
-      // do the copy/lock sequence
-      ib.adapter.putByte(COPY_LOCK_COMMAND);
-      ib.adapter.putByte(VALIDATION_KEY);
+      try
+      {
+         // do the copy/lock command
+         ib.adapter.putByte(COPY_LOCK_COMMAND);
+
+         // setup strong pullup
+         ib.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
+         ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+
+         // send validation key
+         ib.adapter.putByte(VALIDATION_KEY);
+
+         // delay to allow EEPROM write to complete
+         Thread.sleep(COPY_DELAY_LEN);
+
+         // disable power
+         ib.adapter.setPowerNormal();
+      }
+      catch (InterruptedException e){}
+      ;
 
       // read back to verify
       if (!isPageLocked(page))

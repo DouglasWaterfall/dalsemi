@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -35,16 +35,16 @@ import com.dalsemi.onewire.adapter.*;
 
 /**
  * <P> 1-Wire container for temperature iButton which measures temperatures
- * from -55&#176C to +125&#176C, DS1822.  This container encapsulates the
+ * from -55@htmlonly &#176C @endhtmlonly to +125@htmlonly &#176C @endhtmlonly, DS1822.  This container encapsulates the
  * functionality of the iButton family type <B>22</B> (hex)</P>
  *
  * <H3> Features </H3>
  * <UL>
- *   <LI> Measures temperatures from -55&#176C to +125&#176C. Fahrenheit
- *        equivalent is -67&#176F to +257&#176F
+ *   <LI> Measures temperatures from -55@htmlonly &#176C @endhtmlonly to +125@htmlonly &#176C @endhtmlonly. Fahrenheit
+ *        equivalent is -67@htmlonly &#176F @endhtmlonly to +257@htmlonly &#176F @endhtmlonly
  *   <LI> Power supply range is 3.0V to 5.5V
  *   <LI> Zero standby power
- *   <LI> +/- 2&#176C accuracy from -10&#176C to +85&#176C
+ *   <LI> +/- 2@htmlonly &#176C @endhtmlonly accuracy from -10@htmlonly &#176C @endhtmlonly to +85@htmlonly &#176C @endhtmlonly
  *   <LI> Thermometer resolution programmable from 9 to 12 bits
  *   <LI> Converts 12-bit temperature to digital word in 750 ms (max.)
  *   <LI> User-definable, nonvolatile temperature alarm settings
@@ -168,7 +168,7 @@ public class OneWireContainer22
    //--------
 
    /**
-    * Retrieves the Dallas Semiconductor part number of this
+    * Retrieves the Maxim Integrated Products part number of this
     * <code>OneWireContainer22</code> as a <code>String</code>.
     * For example 'DS1822'.
     *
@@ -180,7 +180,7 @@ public class OneWireContainer22
    }
 
    /**
-    * Retrieves the alternate Dallas Semiconductor part numbers or names.
+    * Retrieves the alternate Maxim Integrated Products part numbers or names.
     * A 'family' of 1-Wire Network devices may have more than one part number
     * depending on packaging.  There can also be nicknames such as
     * 'Crypto iButton'.

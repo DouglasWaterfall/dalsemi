@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2001 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -55,7 +55,6 @@ public class ContainerViewer
    /* visual components */
    private JTextPane textPane;
    private Document doc = null;
-
    private final JLabel[] taggedContentLabels = {
       new JLabel("Cluster: ", JLabel.RIGHT), new JLabel(),
       new JLabel("Device Label: ", JLabel.RIGHT), new JLabel(),
@@ -68,6 +67,7 @@ public class ContainerViewer
 
    private TaggedDevice taggedDevice = null;
    private OWPath pathToDevice = null;
+   
 
    /**
     * Initializes the layout and sets up all visual components.
@@ -77,12 +77,14 @@ public class ContainerViewer
       super("ContainerViewer");
 
       // set the version
-      majorVersionNumber = 1;
+      majorVersionNumber = 2;
       minorVersionNumber = 2;
 
       this.textPane = new JTextPane();
+      
       this.textPane.setBorder(BorderFactory.createTitledBorder(
          BorderFactory.createEtchedBorder(), "1-Wire Device Description"));
+
       this.textPane.setEditable(false);
       add(new JScrollPane(this.textPane,
                   JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -107,7 +109,7 @@ public class ContainerViewer
          taggedContentLabels[i+1].setOpaque(true);
          taggedContentPanel.add(taggedContentLabels[i+1]);
       }
-
+      
       initStyles();
       clearContainer();
    }
@@ -123,7 +125,6 @@ public class ContainerViewer
     */
    public boolean containerSupported(OneWireContainer owc)
    {
-
       return true;
    }
 
@@ -193,7 +194,7 @@ public class ContainerViewer
    }
 
    private void appendContent(String content, String style)
-   {
+   {	   
       try
       {
          doc.insertString(doc.getLength(), content, textPane.getStyle(style));
@@ -329,19 +330,29 @@ public class ContainerViewer
     */
    public void clearContainer()
    {
-      Document doc = textPane.getDocument();
+      // Java 7 bug workaround of OneWireViewer GUI freeze.
+      // When "removing" a document on a GUI, this triggers a GUI event for each 
+      // character.  This can tie up a GUI and even freeze it. The workaround 
+      // entails setting a blank document to the GUI component (one GUI event).  Then, 
+      // in the background, perform removing and setting of text.
+    	  
+      Document savedDoc = textPane.getDocument();
+      Document blank = new DefaultStyledDocument(); // create a blank document
+      textPane.setDocument(blank); // Set GUI component to blank document
       try
       {
-         doc.remove(0,doc.getLength());
-         doc.insertString(0, "\r\nNo Device Selected!",
-                          textPane.getStyle("bold"));
+         SimpleAttributeSet attributes = new SimpleAttributeSet();
+         StyleConstants.setBold(attributes, true);
+         savedDoc.remove(0,doc.getLength()); // Erase document contents (Process this while not on GUI)
+         savedDoc.insertString(0, "\r\nNo Device Selected!", attributes); // Process this while not on GUI
       }
       catch (BadLocationException ble)
       {
-         System.err.println("Couldn't insert initial text.");
+         System.err.println("Couldn't remove text from Description tab.");
       }
+      textPane.setDocument(savedDoc); // place document back on GUI with one event.
    }
-
+   
    /**
     * Gets the string that represents this Viewer's title
     *
@@ -374,10 +385,10 @@ public class ContainerViewer
     }
 
    private void initStyles()
-   {
+   {   
       Style def = StyleContext.getDefaultStyleContext().
                                getStyle(StyleContext.DEFAULT_STYLE);
-
+      
       Style regular = textPane.addStyle("regular", def);
       StyleConstants.setFontFamily(def, "Courier New");
       StyleConstants.setFontSize(def, 14);
@@ -392,7 +403,7 @@ public class ContainerViewer
       StyleConstants.setFontSize(s, 10);
 
       s = textPane.addStyle("large", regular);
-      StyleConstants.setFontSize(s, 18);
+      StyleConstants.setFontSize(s, 18);  
    }
 
    /**
@@ -400,7 +411,7 @@ public class ContainerViewer
     * current container.  Used to display viewer in new window.
     */
    public Viewer cloneViewer()
-   {
+   {	   
       ContainerViewer cv = new ContainerViewer();
       if(this.taggedDevice!=null)
          cv.setContainer(this.taggedDevice);

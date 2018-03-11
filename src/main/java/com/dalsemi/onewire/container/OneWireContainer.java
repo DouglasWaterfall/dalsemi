@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2004 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999,2004 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -38,8 +38,8 @@ import com.dalsemi.onewire.OneWireException;
 
 /**
  * A <code>OneWireContainer</code> encapsulates the <code>DSPortAdapter</code>,
- * the 1-Wire&#174 network address, and methods to manipulate a specific 1-Wire device. A
- * 1-Wire device may be in the form of a stainless steel armored can, called an iButton&#174,
+ * the 1-Wire&reg; network address, and methods to manipulate a specific 1-Wire device. A
+ * 1-Wire device may be in the form of a stainless steel armored can, called an iButton&reg;,
  * or in standard IC plastic packaging.
  *
  * <p>General 1-Wire device container class with basic communication functions.
@@ -315,7 +315,7 @@ public class OneWireContainer
    //--------
 
    /**
-    * Retrieves the Dallas Semiconductor part number of the 1-Wire device
+    * Retrieves the Maxim Integrated Products part number of the 1-Wire device
     * as a <code>String</code>.  For example 'Crypto iButton' or 'DS1992'.
     *
     * @return 1-Wire device name
@@ -332,7 +332,7 @@ public class OneWireContainer
    }
 
    /**
-    * Retrieves the alternate Dallas Semiconductor part numbers or names.
+    * Retrieves the alternate Maxim Integrated Products part numbers or names.
     * A 'family' of 1-Wire Network devices may have more than one part number
     * depending on packaging.  There can also be nicknames such as
     * 'Crypto iButton'.

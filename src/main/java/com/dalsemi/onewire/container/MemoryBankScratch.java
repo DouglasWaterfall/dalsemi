@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -1028,6 +1028,57 @@ class MemoryBankScratch
          forceVerify();
 
          throw new OneWireIOException("Copy scratchpad complete not found");
+      }
+   }
+
+   /**
+    * Copy the scratchpad page to memory.
+    *
+    * @param  startAddr     starting address
+    * @param  len           length in bytes that was written already
+    *
+    * @throws OneWireIOException
+    * @throws OneWireException
+    */
+   public void copyScratchpad (int startAddr, int len, boolean WriteProtect)
+      throws OneWireIOException, OneWireException
+   {
+      int i,j;
+
+      if(WriteProtect)
+         i = 2;
+      else
+         i = 0;
+
+      for(j=0;j<i;j++)
+      {
+         // select the device
+         if (!ib.adapter.select(ib.address))
+         {
+            forceVerify();
+
+            throw new OneWireIOException("Device select failed");
+         }
+
+         // build block to send
+         byte[] raw_buf = new byte [5];
+
+         raw_buf [0] = COPY_SCRATCHPAD_COMMAND;
+         raw_buf [1] = ( byte ) (startAddr & 0xFF);
+         raw_buf [2] = ( byte ) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
+         raw_buf [3] = ( byte ) ((startAddr + len - 1) & 0x1F);
+         raw_buf [3] = ( byte ) (raw_buf [3] | 0x80);
+         raw_buf [4] = ( byte ) 0xFF;
+
+         // send block (check copy indication complete)
+         ib.adapter.dataBlock(raw_buf, 0, 5);
+
+         if ((raw_buf [4] & 0x0F0) != 0)
+         {
+            forceVerify();
+
+            throw new OneWireIOException("Copy scratchpad complete not found");
+         }
       }
    }
 

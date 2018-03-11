@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2001 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -47,7 +47,7 @@ public final class DevicePanel
    implements DeviceMonitorEventListener
 {
 
-   private Object syncFlag = new Object();
+   public Object syncFlag = new Object();
 
    private JList list = null;
    private DefaultListModel listModel = null;;
@@ -245,7 +245,7 @@ public final class DevicePanel
    public OneWireContainer[] getSelectedContainers()
    {
       Object[] oArray = list.getSelectedValues();
-      java.util.ArrayList list;
+      ArrayList list;
 
       if(oArray==null)
          return null;
@@ -267,9 +267,9 @@ public final class DevicePanel
    public void setSelectedAddress(String address)
    {
       int index = -1;
-      for(int i=0; index<0 && i<listModel.size(); i++)
+      for(int i=0; index<0 && i<listModel.getSize(); i++)
       {
-         OneWireContainer owc = (OneWireContainer)listModel.elementAt(i);
+         OneWireContainer owc = (OneWireContainer)listModel.getElementAt(i);
          if(owc.getAddressAsString().equals(address))
             index = i;
       }
@@ -354,8 +354,9 @@ public final class DevicePanel
    {
       int cnt = dme.getDeviceCount();
       for(int i=0; i<cnt; i++)
+      {
          listModel.addElement(dme.getContainerAt(i));
-
+      }
       deviceCount += cnt;
       updateDeviceLabel();
    }
@@ -370,7 +371,6 @@ public final class DevicePanel
       int cnt = dme.getDeviceCount();
       for(int i=0; i<cnt; i++)
          listModel.removeElement(dme.getContainerAt(i));
-
       deviceCount -= cnt;
       updateDeviceLabel();
    }

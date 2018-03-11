@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -41,7 +41,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *
  * <P> This interface has methods to read and write a packet structure
  * called the UDP (Universal Data Packet).  This structure has a length byte,
- * data, and an inverted CRC16.  See Dallas Semiconductor Application Note 114
+ * data, and an inverted CRC16.  See Maxim Integrated Products Application Note 114
  * for details: 
  * <A HREF="http://dbserv.maxim-ic.com/appnotes.cfm?appnote_number=114"> 
  * http://dbserv.maxim-ic.com/appnotes.cfm?appnote_number=114</A>
@@ -368,7 +368,7 @@ public interface PagedMemoryBank
     * be read, readContinue would be set to false for page 0 and would be set
     * to true for the next four calls.
     *
-    * <P> See Dallas Semiconductor Application Note 114
+    * <P> See Maxim Integrated Products Application Note 114
     * for details: <A HREF="http://dbserv.maxim-ic.com/appnotes.cfm?appnote_number=114"> 
     * http://dbserv.maxim-ic.com/appnotes.cfm?appnote_number=114</A>
     *

@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------
- * Copyright (C) 1999,2000 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -15,13 +15,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -58,8 +58,8 @@ import java.util.Enumeration;
  *        superseding an old page in favor of a newly
  *        programmed page
  *   <LI> Reads over a wide voltage range of 2.8V to
- *        6.0V from -40&#176C to +85&#176C; programs at
- *        11.5V to 12.0V from -40&#176C to +50&#176C
+ *        6.0V from -40@htmlonly &#176C @endhtmlonly to +85@htmlonly &#176C @endhtmlonly; programs at
+ *        11.5V to 12.0V from -40@htmlonly &#176C @endhtmlonly to +50@htmlonly &#176C @endhtmlonly
  * </UL>
  * 
  * <H3> Alternate Names </H3>
@@ -243,7 +243,7 @@ public class OneWireContainer0B
    //--------
 
    /**
-    * Get the Dallas Semiconductor part number of the iButton
+    * Get the Maxim Integrated Products part number of the iButton
     * or 1-Wire Device as a string.  For example 'DS1992'.
     *
     * @return iButton or 1-Wire device name
@@ -254,7 +254,7 @@ public class OneWireContainer0B
    }
 
    /**
-    * Get the alternate Dallas Semiconductor part numbers or names.
+    * Get the alternate Maxim Integrated Products part numbers or names.
     * A 'family' of 1-Wire Network devices may have more than one part number
     * depending on packaging.  There can also be nicknames such as
     * 'Crypto iButton'.

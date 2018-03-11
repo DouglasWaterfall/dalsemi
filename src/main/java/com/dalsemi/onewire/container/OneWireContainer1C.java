@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2004 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2004 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -35,7 +35,7 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.OneWireIOException;
 
 /**
- * <P> 1-Wire&#174 container for a Addressable 1-Wire 4K-bit EEPROM, DS28E04.
+ * <P> 1-Wire&reg; container for a Addressable 1-Wire 4K-bit EEPROM, DS28E04.
  * This container encapsulates the functionality of the 1-Wire family
  * type <B>1C</B> (hex)</P>
  *
@@ -213,7 +213,7 @@ public class OneWireContainer1C
    //--------
 
    /**
-    * Gets the Dallas Semiconductor part number of the iButton
+    * Gets the Maxim Integrated Products part number of the iButton
     * or 1-Wire Device as a <code>java.lang.String</code>.
     *
     * @return iButton or 1-Wire device name
@@ -245,7 +245,7 @@ public class OneWireContainer1C
    }
 
    /**
-    * Retrieves the alternate Dallas Semiconductor part numbers or names.
+    * Retrieves the alternate Maxim Integrated Products part numbers or names.
     * A 'family' of MicroLAN devices may have more than one part number
     * depending on packaging.  There can also be nicknames such as
     * "Crypto iButton".

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (C) 2001 Dallas Semiconductor Corporation, All Rights Reserved.
+ * Copyright (C) 2001 - 2009 Maxim Integrated Products, All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -14,13 +14,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ * IN NO EVENT SHALL MAXIM INTEGRATED PRODUCTS BE LIABLE FOR ANY CLAIM, DAMAGES
  * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Except as contained in this notice, the name of Dallas Semiconductor
- * shall not be used except as stated in the Dallas Semiconductor
+ * Except as contained in this notice, the name of Maxim Integrated Products
+ * shall not be used except as stated in the Maxim Integrated Products
  * Branding Policy.
  *---------------------------------------------------------------------------
  */
@@ -53,9 +53,10 @@ public class TemperatureViewer extends Viewer
 {
    /* string constants */
    private static final String strTitle = "TemperatureViewer";
-   private static final String strTab = "Temperature";
+   private static final String strTab = "Real-Time Temperature";
    private static final String strTip = "Shows temperature in Celsius or Fahrenheit";
    private static final String naString = "N/A";
+   private static final String newline = System.getProperty("line.separator");
 
    public static final String TEMPERATURE_VIEWER_FAHRENHEIT = 
       "temperature.viewer.displayFahrenheit";
@@ -85,6 +86,9 @@ public class TemperatureViewer extends Viewer
       java.text.DateFormat.getDateTimeInstance(
          java.text.DateFormat.SHORT, java.text.DateFormat.MEDIUM);
 
+   /* misc strings */
+   private String missionResults = ""; // to store header (mission status) information for exporting data log to spreadsheet
+
    /* single-instance Viewer Tasks */
    private ViewerTask pollTemperatureTask = new PollTemperatureTask();
    private ViewerTask pollResolutionTask = new PollResolutionTask();
@@ -102,7 +106,7 @@ public class TemperatureViewer extends Viewer
 
       // set the version
       majorVersionNumber = 1;
-      minorVersionNumber = 3;
+      minorVersionNumber = 6; 
 
       nf.setMaximumFractionDigits(3);
       nf.setGroupingUsed(false);
@@ -489,6 +493,7 @@ public class TemperatureViewer extends Viewer
                pathToDevice.open();
             byte[] state = l_container.readDevice();
             l_container.doTemperatureConvert(state);
+            state = l_container.readDevice(); // BDH added extra readDevice for those devices that may need it
             double read = l_container.getTemperature(state);
             if(bFahrenheit)
                read = Convert.toFahrenheit(read);
@@ -641,6 +646,13 @@ public class TemperatureViewer extends Viewer
             l_adapter = adapter;
             l_container = container;
          }
+
+         // create a "header" string that adds part number, registration number, and column headers for exporting data to spreadsheet
+         missionResults += "1-Wire/iButton Part Number: " + ((OneWireContainer)l_container).getName() + newline;
+         missionResults += "1-Wire/iButton Registration Number: " + ((OneWireContainer)l_container).getAddressAsString() + newline + newline;
+         missionResults += "Date/Time,Unit,Value" + newline;
+
+         plot.setHeaderString(missionResults); // send the header string to the plot (to be exported to spreadsheet) 
 
          pausePoll();
          setStatus(VERBOSE, "Setting up viewer");
