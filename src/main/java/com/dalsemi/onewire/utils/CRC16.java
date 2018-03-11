@@ -28,6 +28,8 @@
 
 package com.dalsemi.onewire.utils;
 
+
+
 /**
  * CRC16 is a class containing an implementation of the
  * Cyclic-Redundency-Check (CRC) CRC16.  The CRC16 is used in
@@ -35,7 +37,7 @@ package com.dalsemi.onewire.utils;
  * <p>
  * CRC16 is based on the polynomial = X^16 + X^15 + X^2 + 1.
  *
- * @version    0.00, 28 Aug 2000
+ * @version    1.01, 14 July 2000
  * @author     DS
  */
 public class CRC16
@@ -44,14 +46,9 @@ public class CRC16
    //--------
    //-------- Variables
    //--------
+   private static native int CRC16 (byte[] barr, int off, int len, int crc);
 
-   /**
-    * used in CRC16 calculation
-    */
-   private static final int[] ODD_PARITY =
-   {
-      0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0
-   };
+   private static byte[] temparr = new byte [1];
 
    //--------
    //-------- Constructor
@@ -73,12 +70,16 @@ public class CRC16
     * <p>
     * CRC16 is based on the polynomial = X^16 + X^15 + X^2 + 1.
     *
-    * @param  dataToCrc     data element on which to perform the CRC16
-    * @return  CRC16 value
+    * @param  dataToCrc     data element to perform crc16 on
     */
    public static int compute (int dataToCrc)
    {
-      return compute(dataToCrc, 0);
+      synchronized (temparr)
+      {
+         temparr [0] = ( byte ) dataToCrc;
+
+         return CRC16(temparr, 0, 1, 0);
+      }
    }
 
    /**
@@ -86,27 +87,16 @@ public class CRC16
     * <p>
     * CRC16 is based on the polynomial = X^16 + X^15 + X^2 + 1.
     *
-    * @param  dataToCrc     data element on which to perform the CRC16
-    * @return  CRC16 value
+    * @param  dataToCrc     data element to perform crc16 on
     */
    public static int compute (int dataToCrc, int seed)
    {
-      int dat = ((dataToCrc ^ (seed & 0xFF)) & 0xFF);
+      synchronized (temparr)
+      {
+         temparr [0] = ( byte ) dataToCrc;
 
-      seed = (seed&0xFFFF) >>> 8;
-
-      int indx1 = (dat & 0x0F);
-      int indx2 = (dat >>> 4);
-
-      if ((ODD_PARITY [indx1] ^ ODD_PARITY [indx2]) == 1)
-         seed = seed ^ 0xC001;
-
-      dat  = (dat << 6);
-      seed = seed ^ dat;
-      dat  = (dat << 1);
-      seed = seed ^ dat;
-
-      return seed;
+         return CRC16(temparr, 0, 1, seed);
+      }
    }
 
    /**
@@ -115,13 +105,13 @@ public class CRC16
     * <p>
     * CRC16 is based on the polynomial = X^16 + X^15 + X^2 + 1.
     *
-    * @param   dataToCrc   array of data elements on which to perform the CRC16
+    * @param   dataToCrc   array of data elements to perform crc16 on
     *
     * @return  CRC16 value
     */
    public static int compute (byte dataToCrc [])
    {
-      return compute(dataToCrc, 0, dataToCrc.length, 0);
+      return CRC16(dataToCrc, 0, dataToCrc.length, 0);
    }
 
    /**
@@ -130,7 +120,7 @@ public class CRC16
     * <p>
     * CRC16 is based on the polynomial = X^16 + X^15 + X^2 + 1.
     *
-    * @param   dataToCrc   array of data elements on which to perform the CRC16
+    * @param   dataToCrc   array of data elements on which to perform crc16
     * @param   off         offset into the data array
     * @param   len         length of data to CRC16
     *
@@ -138,7 +128,7 @@ public class CRC16
     */
    public static int compute (byte dataToCrc [], int off, int len)
    {
-      return compute(dataToCrc, off, len, 0);
+      return CRC16(dataToCrc, off, len, 0);
    }
 
    /**
@@ -147,7 +137,7 @@ public class CRC16
     * <p>
     * CRC16 is based on the polynomial = X^16 + X^15 + X^2 + 1.
     *
-    * @param   dataToCrc   array of data elements on which to perform the CRC16
+    * @param   dataToCrc   array of data elements on which to perform crc16
     * @param   off         offset into the data array
     * @param   len         length of data to CRC16
     * @param   seed        seed to use for CRC16
@@ -156,12 +146,7 @@ public class CRC16
     */
    public static int compute (byte dataToCrc [], int off, int len, int seed)
    {
-
-      // loop to do the crc on each data element
-      for (int i = 0; i < len; i++)
-         seed = compute(dataToCrc [i + off], seed);
-
-      return seed;
+      return CRC16(dataToCrc, off, len, seed);
    }
 
    /**
@@ -170,12 +155,11 @@ public class CRC16
     * <p>
     * CRC16 is based on the polynomial = X^16 + X^15 + X^2 + 1.
     *
-    * @param   dataToCrc   array of data elements on which to perform the CRC16
-    * @param   seed        seed to use for CRC16
-    * @return  CRC16 value
+    * @param   dataToCrc   array of data elements on which to perform the crc8
+    * @param   seed        seed to use for crc16
     */
    public static int compute (byte dataToCrc [], int seed)
    {
-      return compute(dataToCrc, 0, dataToCrc.length, seed);
+      return CRC16(dataToCrc, 0, dataToCrc.length, seed);
    }
 }

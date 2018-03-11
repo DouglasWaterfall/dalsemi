@@ -88,22 +88,12 @@ public class Address
     *
     * @return <code>true</code> if the family code is non-zero and the
     * CRC8 calculation is correct.
-    * @see        CRC8
+    * @see        com.dalsemi.onewire.utils.CRC8
     */
    public static boolean isValid (byte[] address)
    {
       if ((address [0] != 0) && (CRC8.compute(address) == 0))
          return true;
-      else if ((address[0]&0x7F) == 0x1C) // DS28E04
-      {
-         // The DS28E04 has a pin selectable ROM ID input.  However,
-         // the CRC8 for the ROM ID assumes that the selecatable bits
-         // are always 1.
-         return 0 ==
-            CRC8.compute(address, 2, 6,
-               CRC8.compute(0x7F,
-                  CRC8.compute(address[0], 0)));
-      }
       else
          return false;
    }
@@ -118,7 +108,7 @@ public class Address
     *
     * @return <code>true</code> if the family code is non-zero and the
     * CRC8 calculation is correct.
-    * @see        CRC8
+    * @see        com.dalsemi.onewire.utils.CRC8
     */
    public static boolean isValid (String address)
    {
@@ -135,7 +125,7 @@ public class Address
     *
     * @return <code>true</code> if the family code is non-zero and the
     * CRC8 calculation is correct.
-    * @see        CRC8
+    * @see        com.dalsemi.onewire.utils.CRC8
     */
    public static boolean isValid (long address)
    {
